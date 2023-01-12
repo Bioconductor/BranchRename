@@ -1,0 +1,20 @@
+Package: BranchRename
+Title: Utilities for renaming branches on GitHub
+Version: 0.99.0
+Authors@R: 
+    person("Marcel", "Ramos", , "marcel.ramosperez@roswellpark.org",
+    c("aut", "cre"), c(ORCID = "0000-0002-3242-0582"))
+Description: The package provides utility functions at the user and
+  organization level for renaming branches on GitHub. The functions are
+  written mainly for modifying batches of either repositories or packages.
+  It uses tools to authenticate and call git from within R.
+Imports:
+  gert,
+  gh,
+  ReleaseLaunch,
+  utils
+License: Artistic-2.0
+Encoding: UTF-8
+Remotes: Bioconductor/ReleaseLaunch
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
