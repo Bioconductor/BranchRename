@@ -328,7 +328,7 @@ rename_branch_repos <- function(
 #'
 #' @param basedir `character(1)` The base directory where all packages /
 #'   repositories exist for the user
-#' 
+#'
 #' @param repo_dir `character(1)` The full path to the directory of the local
 #'   repository whose default branch should be updated
 #'
@@ -353,7 +353,7 @@ update_local_repos <- function(
     fnames <- basename(folders)
     matching <- intersect(fnames, names(repos))
     pkg_dirs <- file.path(basedir, matching)
-    
+
     if (!length(matching))
         stop("No local folders in 'basedir' to update")
 
