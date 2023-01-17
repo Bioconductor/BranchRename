@@ -65,7 +65,7 @@ repos_with_default_branch <- function(
     branches = c(.OLD_DEFAULT_BRANCH, "main"),
     org = "Bioconductor"
 ) {
-    repos <- get_org_github_repos(org = org)
+    repos <- ReleaseLaunch::get_org_github_repos(org = org)
     repos[repos %in% branches]
 }
 
