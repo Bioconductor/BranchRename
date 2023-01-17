@@ -13,7 +13,7 @@
 #'
 #' @inheritParams rename_branch_to_devel
 #'
-#' @param version character(1) The current development version of Bioconductor
+#' @param version `character(1)` The current development version of Bioconductor
 #'   given by `BiocManager::version()` (default). It is used to obtain the
 #'   packages currently available in the Bioconductor CRAN-like repository with
 #'   `BiocManager::repositories()`.
@@ -85,10 +85,10 @@ repos_with_default_branch <- function(
 #'
 #' @inheritParams ReleaseLaunch::`branch-release-gh`
 #'
-#' @param from_branch character(1) The old default branch from which to base the
+#' @param from_branch `character(1)` The old default branch from which to base the
 #'   new 'devel' branch from (default: 'master')
 #'
-#' @param set_upstream character(1) The remote location that will be tracked by
+#' @param set_upstream `character(1)` The remote location that will be tracked by
 #'   the local branch, either "origin/devel" (default) or "upstream/devel"
 #'
 #' @param clone logical(1) Whether to clone the GitHub repository into the
@@ -322,11 +322,11 @@ rename_branch_repos <- function(
 #'   and performs the necessary steps to rename the branch and set the
 #'   `HEAD` to `origin/devel`.
 #'
-#' @param basedir character(1) The base directory where all packages /
+#' @param basedir `character(1)` The base directory where all packages /
 #'   repositories exist for the user
 #'
-#' @param username character(1) The GitHub username used in the query to check
-#'   default packages
+#' @param username `character(1)` (optional) The GitHub username used in the query
+#'   to check default packages
 #'
 #' @inheritParams gert::git_branch_move
 #' @inheritParams rename_branch_repos

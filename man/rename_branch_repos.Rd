@@ -24,7 +24,7 @@ only works when either \code{packages} or \code{repos} are not specified.}
 \item{org}{character(1) The organization for which to extract the names of
 the repositories on GitHub (default "Bioconductor").}
 
-\item{set_upstream}{character(1) The remote location that will be tracked by
+\item{set_upstream}{\code{character(1)} The remote location that will be tracked by
 the local branch, either "origin/devel" (default) or "upstream/devel"}
 
 \item{clone}{logical(1) Whether to clone the GitHub repository into the

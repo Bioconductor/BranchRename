@@ -11,7 +11,7 @@ packages_with_default_branch(
 )
 }
 \arguments{
-\item{version}{character(1) The current development version of Bioconductor
+\item{version}{\code{character(1)} The current development version of Bioconductor
 given by \code{BiocManager::version()} (default). It is used to obtain the
 packages currently available in the Bioconductor CRAN-like repository with
 \code{BiocManager::repositories()}.}
