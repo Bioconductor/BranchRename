@@ -10,7 +10,7 @@ repos_with_default_branch(
 )
 }
 \arguments{
-\item{branches}{character() A vector of branches that are sought as default
+\item{branches}{\code{character()} A vector of branches that are sought as default
 branches}
 
 \item{org}{character(1) The organization for which to extract the names of

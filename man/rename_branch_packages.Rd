@@ -14,7 +14,7 @@ rename_branch_packages(
 )
 }
 \arguments{
-\item{packages}{named character() A character vector of default branches
+\item{packages}{\verb{named character()} A character vector of default branches
 whose names correspond to Bioconductor package names. See
 \code{packages_with_default_branch}.}
 
@@ -23,7 +23,7 @@ given by \code{BiocManager::version()} (default). It is used to obtain the
 packages currently available in the Bioconductor CRAN-like repository with
 \code{BiocManager::repositories()}.}
 
-\item{old_branches}{character() A vector of default branch names to be
+\item{old_branches}{\code{character()} A vector of default branch names to be
 replaced, both 'master' and 'main' are included by default. This argument
 only works when either \code{packages} or \code{repos} are not specified.}
 

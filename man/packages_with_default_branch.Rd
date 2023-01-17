@@ -16,7 +16,7 @@ given by \code{BiocManager::version()} (default). It is used to obtain the
 packages currently available in the Bioconductor CRAN-like repository with
 \code{BiocManager::repositories()}.}
 
-\item{branches}{character() A vector of branches that are sought as default
+\item{branches}{\code{character()} A vector of branches that are sought as default
 branches}
 
 \item{org}{character(1) The organization for which to extract the names of

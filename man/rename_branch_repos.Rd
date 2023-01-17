@@ -13,11 +13,11 @@ rename_branch_repos(
 )
 }
 \arguments{
-\item{repos}{named character() A vector of default branches whose names
+\item{repos}{\verb{named character()} A vector of default branches whose names
 correspond to repositories hosted on GitHub. If missing,
 \code{repos_with_default_branch} is called and its result is used.}
 
-\item{old_branches}{character() A vector of default branch names to be
+\item{old_branches}{\code{character()} A vector of default branch names to be
 replaced, both 'master' and 'main' are included by default. This argument
 only works when either \code{packages} or \code{repos} are not specified.}
 

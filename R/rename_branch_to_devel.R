@@ -18,7 +18,7 @@
 #'   packages currently available in the Bioconductor CRAN-like repository with
 #'   `BiocManager::repositories()`.
 #'
-#' @param branches character() A vector of branches that are sought as default
+#' @param branches `character()` A vector of branches that are sought as default
 #'   branches
 #'
 #' @seealso rename_branch_packages
@@ -174,10 +174,10 @@ rename_branch_to_devel <- function(
 #' desired name via the `remote` argument but it is customarily called the
 #' 'upstream' remote.
 #'
-#' @param package_path character(1L) The local path to a package directory whose
+#' @param package_path `character(1)` The local path to a package directory whose
 #'   upstream remote should be set
 #'
-#' @param remote character(1L) The name of the remote to be created. This is
+#' @param remote `character(1)` The name of the remote to be created. This is
 #'   usually named 'upstream' (default)
 #'
 #' @return Called for the side effect of creating an 'upstream' remote with the
@@ -242,11 +242,11 @@ add_bioc_remote <- function(package_path, remote = "upstream") {
 #'
 #' @inheritParams packages_with_default_branch
 #'
-#' @param packages named character() A character vector of default branches
+#' @param packages `named character()` A character vector of default branches
 #'   whose names correspond to Bioconductor package names. See
 #'   `packages_with_default_branch`.
 #'
-#' @param old_branches character() A vector of default branch names to be
+#' @param old_branches `character()` A vector of default branch names to be
 #'   replaced, both 'master' and 'main' are included by default. This argument
 #'   only works when either `packages` or `repos` are not specified.
 #'
@@ -282,7 +282,7 @@ rename_branch_packages <- function(
 #'
 #' @inheritParams rename_branch_packages
 #'
-#' @param repos named character() A vector of default branches whose names
+#' @param repos `named character()` A vector of default branches whose names
 #'   correspond to repositories hosted on GitHub. If missing,
 #'   `repos_with_default_branch` is called and its result is used.
 #'
