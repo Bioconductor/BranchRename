@@ -91,10 +91,10 @@ repos_with_default_branch <- function(
 #' @param set_upstream `character(1)` The remote location that will be tracked by
 #'   the local branch, either "origin/devel" (default) or "upstream/devel"
 #'
-#' @param clone logical(1) Whether to clone the GitHub repository into the
+#' @param clone `logical(1)` Whether to clone the GitHub repository into the
 #'   current working directory (default: TRUE)
 #'
-#' @param is_bioc_pkg logical(1) Whether the repository is an R package that has
+#' @param is_bioc_pkg `logical(1)` Whether the repository is an R package that has
 #'   an upstream remote on Bioconductor, i.e.,
 #'   <git@git.bioconductor.org:packages/Package>. If so, additional validity
 #'   checks will be run on the git remotes.
