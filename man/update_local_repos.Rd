@@ -2,6 +2,7 @@
 % Please edit documentation in R/rename_branch_to_devel.R
 \name{update_local_repos}
 \alias{update_local_repos}
+\alias{update_local_repo}
 \title{Update local repositories after GitHub branch rename}
 \usage{
 update_local_repos(
@@ -11,32 +12,45 @@ update_local_repos(
   new_branch = "devel",
   set_upstream = "origin/devel"
 )
+
+update_local_repo(
+  repo_dir,
+  new_branch = "devel",
+  set_upstream = "origin/devel"
+)
 }
 \arguments{
-\item{basedir}{character(1) The base directory where all packages /
+\item{basedir}{\code{character(1)} The base directory where all packages /
 repositories exist for the user}
 
 \item{org}{character(1) The organization for which to extract the names of
 the repositories on GitHub (default "Bioconductor").}
 
-\item{username}{character(1) The GitHub username used in the query to check
-default packages}
+\item{username}{\code{character(1)} (optional) The GitHub username used in the query
+to check default packages}
 
 \item{new_branch}{target name of the branch once the move is performed; this name is validated for consistency.}
 
-\item{set_upstream}{character(1) The remote location that will be tracked by
+\item{set_upstream}{\code{character(1)} The remote location that will be tracked by
 the local branch, either "origin/devel" (default) or "upstream/devel"}
+
+\item{repo_dir}{\code{character(1)} The full path to the directory of the local
+repository whose default branch should be updated}
 }
 \description{
-This function works \emph{only} after renaming branches on GitHub from \code{master} to
-\code{devel}. It updates local folders so that branches are renamed to \code{devel}
+These functions works \emph{only} after renaming branches on GitHub from \code{master}
+to \code{devel}. It updates local folders so that branches are renamed to \code{devel}
 locally. It also ensures that the \code{HEAD} is pointing to the new remote
-location, i.e., \code{origin/devel} (see \code{gert::git_remote_info()$head}).
+location, i.e., \code{origin/devel} (see \code{gert::git_remote_info()$head}). For
+convenience, the singular \code{update_local_repo} function will update a
+particular local repository on the user's system.
 }
 \details{
-Note that the function queries the GitHub API to discover
-repositories whose default branches are set to \code{devel}. The function then
-matches those repository names with local folder names under \code{basedir}
-and performs the necessary steps to rename the branch and set the
-\code{HEAD} to \code{origin/devel}.
+Note that \code{update_local_repos} (plural) queries the GitHub API to
+discover repositories whose default branches are set to \code{devel}. The
+function then matches those repository names with local folder names under
+\code{basedir} and performs the necessary steps to rename the branch and set the
+\code{HEAD} to \code{origin/devel}. The singular function \code{update_local_repo} assumes
+that the remote change has been made and will rename the local branch and
+update the local repository to match the remote 'HEAD'.
 }
