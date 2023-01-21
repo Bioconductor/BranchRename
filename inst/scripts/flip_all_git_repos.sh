@@ -34,13 +34,17 @@ print_usage()
 	  to the ~git/repositories/ folder on the git server, e.g. 'packages'
 	  or 'admin'.
 	
-	Example: To restore all the git repos in ~git/repositories/packages/
-	(3111 repos as of 2023/01/21) to their original state (and redirect
-	the script output to restore.log):
+	EXAMPLE:
 	
-	    # Takes about 8 hours to process the 3111 repos!
-	    time $0 -r packages >>restore.log 2>&1 &
+	  To restore all the git repos in ~git/repositories/packages/ (3111
+	  repos as of 2023/01/21) to their original state, and redirect the
+	  script output to restore.log:
+	
+	    time $0 -r packages >restore.log 2>&1 &
 	    tail -f restore.log  # watch progress
+	
+	  Note that it takes about 5-6 hours to process the 3111 repos! Make
+	  sure to run this on a machine with a good internet connection.
 	EOD
 	exit 1
 }
