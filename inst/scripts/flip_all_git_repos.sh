@@ -31,12 +31,14 @@ print_usage()
 	    $0 --peek-only <path/to/dir>
 	
 	  IMPORTANT: <path/to/dir> must be the path to a directory relative
-	  to the ~git/repositories/ folder on the git server e.g. 'packages'
+	  to the ~git/repositories/ folder on the git server, e.g. 'packages'
 	  or 'admin'.
 	
-	Example: To restore all the git repos in ~git/repositories/packages to
-	their original state (and redirect the script output to restore.log):
+	Example: To restore all the git repos in ~git/repositories/packages/
+	(3111 repos as of 2023/01/21) to their original state (and redirect
+	the script output to restore.log):
 	
+	    # Takes about 8 hours to process the 3111 repos!
 	    time $0 -r packages >>restore.log 2>&1 &
 	    tail -f restore.log  # watch progress
 	EOD
@@ -71,12 +73,11 @@ if [ $? -ne 0 ]; then
 	fi
 fi
 
-echo "$FLIP_GIT_REPO_SCRIPT_NAME script: $flip_git_repo_script"
+echo "- $FLIP_GIT_REPO_SCRIPT_NAME script: $flip_git_repo_script"
 
 ## --- Make sure $path_to_dir refers to an existing directory ---
 
-echo "git server: $GIT_SERVER"
-echo ""
+echo "- git server: $GIT_SERVER"
 
 remote_run()
 {
@@ -93,11 +94,16 @@ if [ $? -ne 0 ]; then
 fi
 
 all_repos=`remote_run "cd $dir_rpath && ls -d *.git"`
+num_repos=`echo "$all_repos" | wc -w`
+echo "- number of git repos found on server in $dir_rpath/: $num_repos"
+echo ""
 
+counter="0"
 for repo in $all_repos; do
+	(( counter=$counter+1 ))
 	echo "----------------------------------------------------------------"
 	path_to_repo="$path_to_dir/$repo"
-	echo "PROCESSING REPO $path_to_repo"
+	echo "PROCESSING REPO $path_to_repo ($counter/$num_repos)"
 	$flip_git_repo_script "$1" "$path_to_repo"
 	if [ $? -eq 1 ]; then
 		exit 1

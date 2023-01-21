@@ -19,6 +19,9 @@ print_usage()
 	server. Use flip_all_git_repos.sh to flip all the git repos located
 	in a given directory on the git server.
 	
+	Note that the script uses ssh to execute commands on the server, so
+	the git client is not used or needed.
+	
 	USAGE:
 	
 	  to flip:
