@@ -13,20 +13,26 @@ DEVEL_SYMREF="ref: refs/heads/devel"
 print_usage()
 {
 	cat <<-EOD
-	Usage:
+	=== flip_git_repo.sh ===
+	
+	flip_git_repo.sh flips (or unflips) a git repo directly on the git
+	server. Use flip_all_git_repos.sh to flip all the git repos located
+	in a given directory on the git server.
+	
+	USAGE:
 	
 	  to flip:
-	    $0 path/to/repo
+	    $0 <path/to/repo.git>
 	
-	  to reverse the flip (restore original repo):
-	    $0 -r path/to/repo
+	  to reverse the flip (i.e. restore repo to its original state):
+	    $0 -r <path/to/repo.git>
 	
 	  to peek only:
-	    $0 --peek-only path/to/repo
+	    $0 --peek-only <path/to/repo.git>
 	
-	  IMPORTANT: path/to/repo must be the path of a git repository
-	  relative to the ~git/repositories/ folder on the git server (e.g.
-	  packages/Biobase or admin/manifest), and without the .git suffix.
+	  IMPORTANT: <path/to/repo.git> must be the path to a git repo
+	  relative to the ~git/repositories/ folder on the git server,
+	  e.g. 'packages/Biobase.git' or 'admin/manifest.git'.
 	EOD
 	exit 1
 }
@@ -54,7 +60,7 @@ else
 	path_to_repo="$1"
 fi
 
-## --- Make sure $path_to_repo refers to a valid repo ---
+## --- Make sure $path_to_repo refers to a valid git repo ---
 
 echo "git server: $GIT_SERVER"
 echo ""
@@ -64,7 +70,7 @@ remote_run()
 	ssh ubuntu@$GIT_SERVER "sudo su - git --command='$1'"
 }
 
-repo_rpath="~git/repositories/${path_to_repo}.git"
+repo_rpath="~git/repositories/${path_to_repo}"
 HEAD_rpath="$repo_rpath/HEAD"
 heads_rpath="$repo_rpath/refs/heads"
 
