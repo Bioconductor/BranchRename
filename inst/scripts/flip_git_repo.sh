@@ -3,8 +3,6 @@
 
 #set -e  # exit immediately if a simple command exits with a non-zero status
 
-#GIT_SERVER="git.bioconductor.org"
-GIT_SERVER="44.207.152.77"  # testing instance
 MASTER_SYMREF="ref: refs/heads/master"
 DEVEL_SYMREF="ref: refs/heads/devel"
 
@@ -19,15 +17,16 @@ print_usage()
 	server. Use flip_all_git_repos.sh to flip all the git repos located
 	in a given directory on the git server.
 	
-	Note that the script uses ssh to execute commands on the server, so
-	the git client is not used or needed.
+	The script is meant to be run directly on the Bioconductor git
+	server, from the ubuntu account.
 	
 	USAGE:
 	
 	  to flip:
 	    $0 <path/to/repo.git>
 	
-	  to reverse the flip (i.e. restore repo to its original state):
+	  to reverse the flip (i.e. restore the repo to its original state
+	  a.k.a. unflip the repo):
 	    $0 -r <path/to/repo.git>
 	
 	  to peek only:
@@ -65,28 +64,25 @@ fi
 
 ## --- Make sure $path_to_repo refers to a valid git repo ---
 
-echo "git server: $GIT_SERVER"
-echo ""
-
-remote_run()
+run_as_git_user()
 {
-	ssh ubuntu@$GIT_SERVER "sudo su - git --command='$1'"
+	sudo su - git --command="$1"
 }
 
 repo_rpath="~git/repositories/${path_to_repo}"
 HEAD_rpath="$repo_rpath/HEAD"
 heads_rpath="$repo_rpath/refs/heads"
 
-remote_run "test -d $repo_rpath"
+run_as_git_user "test -d $repo_rpath"
 if [ $? -ne 0 ]; then
-	echo "ERROR: $repo_rpath: no such folder on git server"
+	echo "ERROR: $repo_rpath: no such folder on server"
 	echo ""
 	print_usage
 fi
-remote_run "test -f $HEAD_rpath"
+run_as_git_user "test -f $HEAD_rpath"
 if [ $? -ne 0 ]; then
 	echo "ERROR: No $HEAD_rpath file"
-	echo "  on git server. Is $path_to_repo a valid git repo?"
+	echo "  on server. Is $path_to_repo a valid git repo?"
 	exit 1
 fi
 
@@ -96,9 +92,9 @@ NO_SUCH_FILE="no such file"
 
 get_HEAD()
 {
-	remote_run "test -f $HEAD_rpath"
+	run_as_git_user "test -f $HEAD_rpath"
 	if [ $? -eq 0 ]; then
-		remote_run "cat $HEAD_rpath"
+		run_as_git_user "cat $HEAD_rpath"
 	else
 		echo "$NO_SUCH_FILE"
 	fi
@@ -106,9 +102,9 @@ get_HEAD()
 
 get_ref()
 {
-	remote_run "test -f ${heads_rpath}/$1"
+	run_as_git_user "test -f ${heads_rpath}/$1"
 	if [ $? -eq 0 ]; then
-		remote_run "cat ${heads_rpath}/$1"
+		run_as_git_user "cat ${heads_rpath}/$1"
 	else
 		echo "$NO_SUCH_FILE"
 	fi
@@ -127,12 +123,12 @@ take_peek()
 }
 
 if [ "$action" == "peek-only" ]; then
-	echo -n "Taking a peek at repo $path_to_repo on git server ... "
+	echo -n "Taking a peek at repo $path_to_repo ... "
 	take_peek
 	exit 0
 fi
 
-echo -n "Taking a 1st peek at repo $path_to_repo on git server ... "
+echo -n "Taking a 1st peek at repo $path_to_repo ... "
 take_peek
 echo ""
 
@@ -149,7 +145,7 @@ flip_repo()
 	if [ "$ref_devel" == "$NO_SUCH_FILE" ]; then
 		## Branch 'devel' does not exist.
 		echo -n "Renaming branch 'master' to 'devel' ... "
-		remote_run "mv ${heads_rpath}/master ${heads_rpath}/devel"
+		run_as_git_user "mv ${heads_rpath}/master ${heads_rpath}/devel"
 		echo "ok"
 	fi
 
@@ -162,7 +158,7 @@ flip_repo()
 	else
 		## Default branch is NOT set to 'devel'.
 		echo -n "Setting default branch to 'devel' ... "
-		remote_run "echo \"$DEVEL_SYMREF\" >$HEAD_rpath"
+		run_as_git_user "echo \"$DEVEL_SYMREF\" >$HEAD_rpath"
 		echo "ok"
 	fi
 
@@ -171,7 +167,7 @@ flip_repo()
 	if [ "$ref_master" == "$NO_SUCH_FILE" ]; then
 		## Ref 'master' does not exist. Create it.
 		echo -n "Creating ref 'master' (sym ref to 'devel') ... "
-		remote_run "echo \"$DEVEL_SYMREF\" >${heads_rpath}/master"
+		run_as_git_user "echo \"$DEVEL_SYMREF\" >${heads_rpath}/master"
 		echo "ok"
 	elif [ "$ref_master" == "$DEVEL_SYMREF" ]; then
 		## Ref 'master' exists and is a sym ref to 'devel'.
@@ -199,7 +195,7 @@ unflip_repo()
 	if [ "$ref_devel" != "$NO_SUCH_FILE" ]; then
 		## Branch 'devel' exists.
 		echo -n "Renaming branch 'devel' to 'master' ... "
-		remote_run "mv ${heads_rpath}/devel ${heads_rpath}/master"
+		run_as_git_user "mv ${heads_rpath}/devel ${heads_rpath}/master"
 		echo "ok"
 	fi
 
@@ -211,8 +207,8 @@ unflip_repo()
 		echo "  ==> no need to touch this."
 	else
 		## Default branch is NOT set to 'master'.
-		echo -n "Setting back default branch to 'master' ... "
-		remote_run "echo \"$MASTER_SYMREF\" >$HEAD_rpath"
+		echo -n "Setting default branch back to 'master' ... "
+		run_as_git_user "echo \"$MASTER_SYMREF\" >$HEAD_rpath"
 		echo "ok"
 	fi
 }
@@ -224,7 +220,7 @@ else
 fi
 
 echo ""
-echo -n "Taking a 2nd peek at repo $path_to_repo on git server ... "
+echo -n "Taking a 2nd peek at repo $path_to_repo ... "
 take_peek
 
 echo ""

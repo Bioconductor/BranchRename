@@ -3,8 +3,6 @@
 
 #set -e  # exit immediately if a simple command exits with a non-zero status
 
-#GIT_SERVER="git.bioconductor.org"
-GIT_SERVER="44.207.152.77"  # testing instance
 FLIP_GIT_REPO_SCRIPT_NAME="flip_git_repo.sh"
 
 ## --- Check usage ---
@@ -18,13 +16,16 @@ print_usage()
 	to flip all the git repos located in a given directory
 	on the git server.
 	
+	The script is meant to be run directly on the Bioconductor git
+	server, from the ubuntu account.
+	
 	USAGE:
 	
 	  to flip all the git repos in a directory:
 	    $0 <path/to/dir>
 	
 	  to reverse the flip for all the git repos in a directory (i.e.
-	  restore repos to their original state):
+	  restore the repos to their original state a.k.a. unflip the repos):
 	    $0 -r <path/to/dir>
 	
 	  to peek only:
@@ -34,17 +35,29 @@ print_usage()
 	  to the ~git/repositories/ folder on the git server, e.g. 'packages'
 	  or 'admin'.
 	
-	EXAMPLE:
+	EXAMPLES:
 	
-	  To restore all the git repos in ~git/repositories/packages/ (3111
-	  repos as of 2023/01/21) to their original state, and redirect the
-	  script output to restore.log:
+	- Take a peek at all the git repos in ~git/repositories/packages/
+	  (3111 repos as of 2023/01/21 on the testing instance), and redirect
+	  the script output to peek.log:
 	
-	    time $0 -r packages >restore.log 2>&1 &
-	    tail -f restore.log  # watch progress
+	    # Takes about 7 min to complete.
+	    time $0 --peek-only packages >peek.log 2>&1 &
+	    tail -f peek.log  # watch progress
 	
-	  Note that it takes about 5-6 hours to process the 3111 repos! Make
-	  sure to run this on a machine with a good internet connection.
+	- Flip all the git repos in ~git/repositories/packages/ and redirect
+	  the script output to flip.log:
+
+	    # Takes about 13 min to complete.	
+	    time $0 packages >flip.log 2>&1 &
+	    tail -f flip.log  # watch progress
+	
+	- Restore all the git repos in ~git/repositories/packages/ to their
+	  original state, and redirect the script output to unflip.log:
+	
+	    time $0 -r packages >unflip.log 2>&1 &
+	    tail -f unflip.log  # watch progress
+	
 	EOD
 	exit 1
 }
@@ -81,25 +94,23 @@ echo "- $FLIP_GIT_REPO_SCRIPT_NAME script: $flip_git_repo_script"
 
 ## --- Make sure $path_to_dir refers to an existing directory ---
 
-echo "- git server: $GIT_SERVER"
-
-remote_run()
+run_as_git_user()
 {
-	ssh ubuntu@$GIT_SERVER "sudo su - git --command='$1'"
+	sudo su - git --command="$1"
 }
 
 dir_rpath="~git/repositories/${path_to_dir}"
 
-remote_run "test -d $dir_rpath"
+run_as_git_user "test -d $dir_rpath"
 if [ $? -ne 0 ]; then
 	echo "ERROR: $dir_rpath: no such folder on git server"
 	echo ""
 	print_usage
 fi
 
-all_repos=`remote_run "cd $dir_rpath && ls -d *.git"`
+all_repos=`run_as_git_user "cd $dir_rpath && ls -d *.git"`
 num_repos=`echo "$all_repos" | wc -w`
-echo "- number of git repos found on server in $dir_rpath/: $num_repos"
+echo "- number of git repos found in $dir_rpath/: $num_repos"
 echo ""
 
 counter="0"
@@ -108,7 +119,12 @@ for repo in $all_repos; do
 	echo "----------------------------------------------------------------"
 	path_to_repo="$path_to_dir/$repo"
 	echo "PROCESSING REPO $path_to_repo ($counter/$num_repos)"
-	$flip_git_repo_script "$1" "$path_to_repo"
+	echo ""
+	if [ "$2" == "" ]; then
+		$flip_git_repo_script "$path_to_repo"
+	else
+		$flip_git_repo_script "$1" "$path_to_repo"
+	fi
 	if [ $? -eq 1 ]; then
 		exit 1
 	fi
