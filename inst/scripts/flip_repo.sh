@@ -128,6 +128,7 @@ take_peek()
 	echo "    - file refs/heads/master:  $ref_master"
 	echo "    - file refs/heads/devel:   $ref_devel"
 	echo "    - file HEAD:               $HEAD"
+	echo ""
 	if [ "$ref_devel" == "$NO_SUCH_FILE" ]; then
 		## Repo has no 'devel' branch.
 		if [ "$ref_master" == "$NO_SUCH_FILE" ]; then
@@ -199,7 +200,6 @@ fi
 
 echo -n "Taking a 1st peek at repo $path_to_repo ... "
 take_peek
-echo ""
 
 flip_repo()
 {
@@ -277,7 +277,6 @@ echo ""
 echo -n "Taking a 2nd peek at repo $path_to_repo ... "
 take_peek
 
-echo ""
 echo "Repo $path_to_repo sucesfully ${action}ped."
 
 exit 0
