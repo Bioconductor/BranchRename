@@ -85,16 +85,17 @@ repos_with_default_branch <- function(
 #'
 #' @inheritParams ReleaseLaunch::`branch-release-gh`
 #'
-#' @param from_branch `character(1)` The old default branch from which to base the
-#'   new 'devel' branch from (default: 'master')
+#' @param from_branch `character(1)` The old default branch from which to base
+#'   the new 'devel' branch from (default: 'master')
 #'
-#' @param set_upstream `character(1)` The remote location that will be tracked by
-#'   the local branch, either "origin/devel" (default) or "upstream/devel"
+#' @param set_upstream `character(1)` The remote location that will be tracked
+#'   by the local branch, either "origin/devel" (default) or "upstream/devel"
 #'
 #' @param clone `logical(1)` Whether to clone the GitHub repository into the
 #'   current working directory (default: TRUE)
 #'
-#' @param is_bioc_pkg `logical(1)` Whether the repository is an R package that has
+#' @param is_bioc_pkg `logical(1)` Whether the repository is an R package that
+#'   has
 #'   an upstream remote on Bioconductor, i.e.,
 #'   <git@git.bioconductor.org:packages/Package>. If so, additional validity
 #'   checks will be run on the git remotes.
@@ -174,8 +175,8 @@ rename_branch_to_devel <- function(
 #' desired name via the `remote` argument but it is customarily called the
 #' 'upstream' remote.
 #'
-#' @param package_path `character(1)` The local path to a package directory whose
-#'   upstream remote should be set
+#' @param package_path `character(1)` The local path to a package directory
+#'   whose upstream remote should be set
 #'
 #' @param remote `character(1)` The name of the remote to be created. This is
 #'   usually named 'upstream' (default)
@@ -332,8 +333,8 @@ rename_branch_repos <- function(
 #' @param repo_dir `character(1)` The full path to the directory of the local
 #'   repository whose default branch should be updated
 #'
-#' @param username `character(1)` (optional) The GitHub username used in the query
-#'   to check default packages
+#' @param username `character(1)` (optional) The GitHub username used in the
+#'   query to check default packages
 #'
 #' @inheritParams gert::git_branch_move
 #' @inheritParams rename_branch_repos

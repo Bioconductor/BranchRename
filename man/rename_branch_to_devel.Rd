@@ -14,22 +14,23 @@ rename_branch_to_devel(
 )
 }
 \arguments{
-\item{package_name}{character(1) The name of the organization R package that
+\item{package_name}{\code{character(1)} The name of the organization R package that
 is also available on GitHub.}
 
-\item{from_branch}{\code{character(1)} The old default branch from which to base the
-new 'devel' branch from (default: 'master')}
+\item{from_branch}{\code{character(1)} The old default branch from which to base
+the new 'devel' branch from (default: 'master')}
 
-\item{org}{character(1) The organization for which to extract the names of
+\item{org}{\code{character(1)} The organization for which to extract the names of
 the repositories on GitHub (default "Bioconductor").}
 
-\item{set_upstream}{\code{character(1)} The remote location that will be tracked by
-the local branch, either "origin/devel" (default) or "upstream/devel"}
+\item{set_upstream}{\code{character(1)} The remote location that will be tracked
+by the local branch, either "origin/devel" (default) or "upstream/devel"}
 
 \item{clone}{\code{logical(1)} Whether to clone the GitHub repository into the
 current working directory (default: TRUE)}
 
-\item{is_bioc_pkg}{\code{logical(1)} Whether the repository is an R package that has
+\item{is_bioc_pkg}{\code{logical(1)} Whether the repository is an R package that
+has
 an upstream remote on Bioconductor, i.e.,
 <git@git.bioconductor.org:packages/Package>. If so, additional validity
 checks will be run on the git remotes.}

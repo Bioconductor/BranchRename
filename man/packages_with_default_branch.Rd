@@ -19,7 +19,7 @@ packages currently available in the Bioconductor CRAN-like repository with
 \item{branches}{\code{character()} A vector of branches that are sought as default
 branches}
 
-\item{org}{character(1) The organization for which to extract the names of
+\item{org}{\code{character(1)} The organization for which to extract the names of
 the repositories on GitHub (default "Bioconductor").}
 }
 \value{

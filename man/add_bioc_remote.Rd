@@ -7,8 +7,8 @@
 add_bioc_remote(package_path, remote = "upstream")
 }
 \arguments{
-\item{package_path}{\code{character(1)} The local path to a package directory whose
-upstream remote should be set}
+\item{package_path}{\code{character(1)} The local path to a package directory
+whose upstream remote should be set}
 
 \item{remote}{\code{character(1)} The name of the remote to be created. This is
 usually named 'upstream' (default)}

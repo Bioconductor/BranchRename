@@ -23,16 +23,16 @@ update_local_repo(
 \item{basedir}{\code{character(1)} The base directory where all packages /
 repositories exist for the user}
 
-\item{org}{character(1) The organization for which to extract the names of
+\item{org}{\code{character(1)} The organization for which to extract the names of
 the repositories on GitHub (default "Bioconductor").}
 
-\item{username}{\code{character(1)} (optional) The GitHub username used in the query
-to check default packages}
+\item{username}{\code{character(1)} (optional) The GitHub username used in the
+query to check default packages}
 
 \item{new_branch}{target name of the branch once the move is performed; this name is validated for consistency.}
 
-\item{set_upstream}{\code{character(1)} The remote location that will be tracked by
-the local branch, either "origin/devel" (default) or "upstream/devel"}
+\item{set_upstream}{\code{character(1)} The remote location that will be tracked
+by the local branch, either "origin/devel" (default) or "upstream/devel"}
 
 \item{repo_dir}{\code{character(1)} The full path to the directory of the local
 repository whose default branch should be updated}
