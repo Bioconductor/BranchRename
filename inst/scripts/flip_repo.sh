@@ -11,18 +11,18 @@ DEVEL_SYMREF="ref: refs/heads/devel"
 print_usage()
 {
 	cat <<-EOD
-	=== flip_git_repo.sh ===
+	=== flip_repo.sh ===
 	
-	flip_git_repo.sh flips (or unflips) a git repo directly on the git
-	server. Use flip_all_git_repos.sh to flip all the git repos located
-	in a given directory on the git server.
+	flip_repo.sh flips (or unflips) a git repo directly on the
+	Bioconductor git server. Use flip_all_repos.sh to flip all
+	the git repos located in a given directory on the server.
 	
 	The script is meant to be run directly on the Bioconductor git
 	server, from the ubuntu account.
 	
 	USAGE:
 	
-	  to flip:
+	  to flip a repo:
 	    $0 <path/to/repo.git>
 	
 	  to reverse the flip (i.e. restore the repo to its original state
@@ -35,6 +35,8 @@ print_usage()
 	  IMPORTANT: <path/to/repo.git> must be the path to a git repo
 	  relative to the ~git/repositories/ folder on the git server,
 	  e.g. 'packages/Biobase.git' or 'admin/manifest.git'.
+	
+	For questions or help: Hervé Pagès <hpages.on.github@gmail.com>
 	EOD
 	exit 1
 }
@@ -62,7 +64,7 @@ else
 	path_to_repo="$1"
 fi
 
-## --- Make sure $path_to_repo refers to a valid git repo ---
+## --- Make sure that $path_to_repo refers to a valid git repo ---
 
 run_as_git_user()
 {
@@ -75,19 +77,19 @@ HEAD_rpath="$repo_rpath/HEAD"
 
 run_as_git_user "test -d $repo_rpath"
 if [ $? -ne 0 ]; then
-	echo "ERROR: $repo_rpath: no such folder on server"
+	echo "ERROR: $repo_rpath/: folder not found"
 	echo ""
 	print_usage
 fi
 run_as_git_user "test -d $heads_rpath"
 if [ $? -ne 0 ]; then
-	echo "ERROR: No $heads_rpath folder on server"
+	echo "ERROR: $heads_rpath/: folder not found"
 	echo "  Is $path_to_repo a valid git repo?"
 	exit 1
 fi
 run_as_git_user "test -f $HEAD_rpath"
 if [ $? -ne 0 ]; then
-	echo "ERROR: No $HEAD_rpath file on server"
+	echo "ERROR: $HEAD_rpath/: file not found"
 	echo "  Is $path_to_repo a valid git repo?"
 	exit 1
 fi
@@ -126,6 +128,67 @@ take_peek()
 	echo "  - file refs/heads/master:  $ref_master"
 	echo "  - file refs/heads/devel:   $ref_devel"
 	echo "  - file HEAD:               $HEAD"
+	if [ "$ref_devel" == "$NO_SUCH_FILE" ]; then
+		## Repo has no 'devel' branch.
+		if [ "$ref_master" == "$NO_SUCH_FILE" ]; then
+			echo -n "ERROR: Repo $path_to_repo has no 'master' "
+			echo "or 'devel' branch"
+			exit 1
+		fi
+		if [ "$ref_master" == "$DEVEL_SYMREF" ]; then
+			echo -n "ERROR: Repo $path_to_repo has a 'master' "
+			echo "branch that is a sym ref "
+			echo -n "  to its 'devel' branch but the latter "
+			echo "does not exist"
+			exit 1
+		fi
+		if [ "$HEAD" != "$MASTER_SYMREF" ]; then
+			echo -n "ERROR: Repo $path_to_repo has "
+			echo "no 'devel' branch"
+			echo -n "  so its default branch should "
+			echo "be 'master' but it's not"
+			exit 1
+		fi
+		## Repo is in original state.
+		repo_state="0"
+	else
+		## Repo does have a 'devel' branch.
+		if [ "$ref_master" == "$NO_SUCH_FILE" ]; then
+			## Repo has no 'master' branch.
+			if [ "$HEAD" != "$DEVEL_SYMREF" ]; then
+				echo -n "ERROR: Repo $path_to_repo has "
+				echo "no 'master' branch"
+				echo -n "  so its default branch should "
+				echo "be 'devel' but it's not"
+				exit 1
+			fi
+			## Repo has a 'devel' branch but no 'master' sym ref.
+			repo_state="1"
+		else
+			## Repo does have a 'master' branch.
+			if [ "$ref_master" != "$DEVEL_SYMREF" ]; then
+				echo -n "ERROR: Repo $path_to_repo has "
+				echo "branches 'master' and 'devel'"
+				echo -n "  but the former is not "
+				echo "a sym ref to the latter"
+				exit 1
+			fi
+			if [ "$HEAD" == "$MASTER_SYMREF" ]; then
+				## Repo has a 'devel' branch and the 'master'
+				## sym ref but default branch is still 'master'.
+				repo_state="2"
+			elif [ "$HEAD" == "$DEVEL_SYMREF" ]; then
+				## Repo is fully flipped.
+				repo_state="3"
+			else
+				echo -n "ERROR: Repo $path_to_repo has "
+				echo "branches 'master' and 'devel'"
+				echo -n "  so its default branch should "
+				echo "be one or the other but it's not"
+				exit 1
+			fi
+		fi
+	fi
 }
 
 if [ "$action" == "peek-only" ]; then
@@ -141,93 +204,67 @@ echo ""
 flip_repo()
 {
 	## --- Do nothing if repo is already flipped ---
-	if [ "$ref_master" == "$DEVEL_SYMREF" ] && \
-	   [ "$ref_devel" != "$NO_SUCH_FILE" ] && \
-	   [ "$HEAD" == "$DEVEL_SYMREF" ]; then
+	if [ "$repo_state" == "3" ]; then
 		echo "Repo is already flipped ==> nothing to do."
 		exit 2
 	fi
 
 	## --- Rename branch 'master' to 'devel' ---
-	if [ "$ref_devel" == "$NO_SUCH_FILE" ]; then
-		## Branch 'devel' does not exist.
+	if [ "$repo_state" == "0" ]; then
 		echo -n "Renaming branch 'master' to 'devel' ... "
 		run_as_git_user "mv ${heads_rpath}/master ${heads_rpath}/devel"
 		echo "ok"
 	fi
 
 	## --- Create ref 'master' (sym ref to 'devel') ---
-	ref_master=`get_ref master`
-	if [ "$ref_master" == "$NO_SUCH_FILE" ]; then
-		## Ref 'master' does not exist. Create it.
+	if [ "$repo_state" == "0" ] || [ "$repo_state" == "1" ]; then
 		echo -n "Creating ref 'master' (sym ref to 'devel') ... "
 		run_as_git_user "echo \"$DEVEL_SYMREF\" >${heads_rpath}/master"
 		echo "ok"
-	elif [ "$ref_master" == "$DEVEL_SYMREF" ]; then
-		## Ref 'master' exists and is a sym ref to 'devel'.
-		echo -n "Repo $path_to_repo already has ref 'master' and ",
-		echo "it is a sym ref to 'devel'."
-		echo "  ==> no need to create it."
 	else
-		## Ref 'master' exists but is NOT a sym ref to 'devel'.
-		echo -n "ERROR: File refs/heads/master already exists but "
-		echo "does NOT contain a sym ref to 'devel'."
-		exit 1
+		## "$repo_state" == "2"
+		echo -n "Repo $path_to_repo already has ref 'master' "
+		echo "and it's a sym ref"
+		echo "to 'devel' ==> no need to create it."
 	fi
 
 	## --- Switch default branch from 'master' to 'devel' ---
-	if [ "$HEAD" == "$MASTER_SYMREF" ]; then
+	if [ "$repo_state" == "0" ] || [ "$repo_state" == "2" ]; then
 		echo -n "Switching default branch from 'master' to 'devel' ... "
 		run_as_git_user "echo \"$DEVEL_SYMREF\" >$HEAD_rpath"
 		echo "ok"
-	elif [ "$HEAD" == "$DEVEL_SYMREF" ]; then
-		## Default branch is already set to 'devel'.
+	else
+		## "$repo_state" == "1"
 		echo -n "Default branch in repo $path_to_repo is already "
 		echo "set to 'devel'"
 		echo "  ==> no need to touch this."
-	else
-		## Default branch is neither 'master' or 'devel'.
-		echo -n "ERROR: Default branch is neither 'master' "
-		echo "or 'devel' ... "
-		exit 1
 	fi
 }
 
 unflip_repo()
 {
 	## --- Do nothing if repo is in original state ---
-	if [ "$ref_master" != "$NO_SUCH_FILE" ] && \
-	   [ "$ref_devel" == "$NO_SUCH_FILE" ] && \
-	   [ "$HEAD" == "$MASTER_SYMREF" ]; then
+	if [ "$repo_state" == "0" ]; then
 		echo "Repo is in original state ==> nothing to do."
 		exit 2
 	fi
 
 	## --- Switch default branch from 'devel' to 'master' ---
-	if [ "$HEAD" == "$DEVEL_SYMREF" ]; then
+	if [ "$repo_state" == "3" ] || [ "$repo_state" == "1" ]; then
 		echo -n "Switching default branch from 'devel' to 'master' ... "
 		run_as_git_user "echo \"$MASTER_SYMREF\" >$HEAD_rpath"
 		echo "ok"
-	elif [ "$HEAD" == "$MASTER_SYMREF" ]; then
-		## Default branch is already set to 'master'.
+	else
+		## "$repo_state" == "2"
 		echo -n "Default branch in repo $path_to_repo is already "
 		echo "set to 'master'"
 		echo "  ==> no need to touch this."
-	else
-		## Default branch is neither 'master' or 'devel'.
-		echo -n "ERROR: Default branch is neither 'master' "
-		echo "or 'devel' ... "
-		exit 1
 	fi
 
 	## --- Rename branch 'devel' to 'master' ---
-	## This will destroy ref 'master' if it exists.
-	if [ "$ref_devel" != "$NO_SUCH_FILE" ]; then
-		## Branch 'devel' exists.
-		echo -n "Renaming branch 'devel' to 'master' ... "
-		run_as_git_user "mv ${heads_rpath}/devel ${heads_rpath}/master"
-		echo "ok"
-	fi
+	echo -n "Renaming branch 'devel' to 'master' ... "
+	run_as_git_user "mv ${heads_rpath}/devel ${heads_rpath}/master"
+	echo "ok"
 }
 
 if [ "$action" == "flip" ]; then

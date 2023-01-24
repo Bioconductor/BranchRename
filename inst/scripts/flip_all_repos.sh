@@ -3,18 +3,18 @@
 
 #set -e  # exit immediately if a simple command exits with a non-zero status
 
-FLIP_GIT_REPO_SCRIPT_NAME="flip_git_repo.sh"
+FLIP_REPO_SCRIPT_NAME="flip_repo.sh"
 
 ## --- Check usage ---
 
 print_usage()
 {
 	cat <<-EOD
-	=== flip_all_git_repos.sh ===
+	=== flip_all_repos.sh ===
 	
-	flip_all_git_repos.sh calls $FLIP_GIT_REPO_SCRIPT_NAME in a loop
-	to flip all the git repos located in a given directory
-	on the git server.
+	flip_all_repos.sh calls $FLIP_REPO_SCRIPT_NAME in a loop to flip all
+	the git repos located in a given directory on the Bioconductor
+	git server.
 	
 	The script is meant to be run directly on the Bioconductor git
 	server, from the ubuntu account.
@@ -59,6 +59,7 @@ print_usage()
 	    time $0 -r packages >unflip.log 2>&1 &
 	    tail -f unflip.log  # watch progress
 	
+	For questions or help: Hervé Pagès <hpages.on.github@gmail.com>	
 	EOD
 	exit 1
 }
@@ -80,18 +81,18 @@ else
 	path_to_dir="$1"
 fi
 
-## --- Locate flip_git_repo.sh script ---
+## --- Locate flip_repo.sh script ---
 
-flip_git_repo_script="`dirname $0`/$FLIP_GIT_REPO_SCRIPT_NAME"
-test -f $flip_git_repo_script
+flip_repo_script="`dirname $0`/$FLIP_REPO_SCRIPT_NAME"
+test -f $flip_repo_script
 if [ $? -ne 0 ]; then
-	flip_git_repo_script=`which "$FLIP_GIT_REPO_SCRIPT_NAME"`
+	flip_repo_script=`which "$FLIP_REPO_SCRIPT_NAME"`
 	if [ $? -ne 0 ]; then
-		echo "ERROR: $FLIP_GIT_REPO_SCRIPT_NAME script not found"
+		echo "ERROR: $FLIP_REPO_SCRIPT_NAME script not found"
 	fi
 fi
 
-echo "- $FLIP_GIT_REPO_SCRIPT_NAME script: $flip_git_repo_script"
+echo "- $FLIP_REPO_SCRIPT_NAME script: $flip_repo_script"
 
 ## --- Make sure $path_to_dir refers to an existing directory ---
 
@@ -122,9 +123,9 @@ for repo in $all_repos; do
 	echo "PROCESSING REPO $path_to_repo ($counter/$num_repos)"
 	echo ""
 	if [ "$2" == "" ]; then
-		$flip_git_repo_script "$path_to_repo"
+		$flip_repo_script "$path_to_repo"
 	else
-		$flip_git_repo_script "$1" "$path_to_repo"
+		$flip_repo_script "$1" "$path_to_repo"
 	fi
 	if [ $? -eq 1 ]; then
 		exit 1
