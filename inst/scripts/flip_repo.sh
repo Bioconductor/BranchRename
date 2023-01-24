@@ -32,8 +32,8 @@ print_usage()
 	  to peek only:
 	    $0 --peek-only <path/to/repo.git>
 	
-	  IMPORTANT: <path/to/repo.git> must be the path to a git repo
-	  relative to the ~git/repositories/ folder on the git server,
+	  IMPORTANT: <path/to/repo.git> must be the path to a git
+	  repo relative to ~git/repositories/ on the git server,
 	  e.g. 'packages/Biobase.git' or 'admin/manifest.git'.
 	
 	For questions or help: Hervé Pagès <hpages.on.github@gmail.com>
@@ -77,19 +77,19 @@ HEAD_rpath="$repo_rpath/HEAD"
 
 run_as_git_user "test -d $repo_rpath"
 if [ $? -ne 0 ]; then
-	echo "ERROR: $repo_rpath/: folder not found"
+	echo "ERROR: $repo_rpath/: folder not found."
 	echo ""
 	print_usage
 fi
 run_as_git_user "test -d $heads_rpath"
 if [ $? -ne 0 ]; then
-	echo "ERROR: $heads_rpath/: folder not found"
+	echo "ERROR: $heads_rpath/: folder not found."
 	echo "  Is $path_to_repo a valid git repo?"
 	exit 1
 fi
 run_as_git_user "test -f $HEAD_rpath"
 if [ $? -ne 0 ]; then
-	echo "ERROR: $HEAD_rpath/: file not found"
+	echo "ERROR: $HEAD_rpath/: file not found."
 	echo "  Is $path_to_repo a valid git repo?"
 	exit 1
 fi
@@ -124,29 +124,29 @@ take_peek()
 	ref_devel=`get_ref devel`
 	HEAD=`get_HEAD`
 	echo "ok"
-	echo "  Found in $repo_rpath/:"
-	echo "  - file refs/heads/master:  $ref_master"
-	echo "  - file refs/heads/devel:   $ref_devel"
-	echo "  - file HEAD:               $HEAD"
+	echo "--> Found in $repo_rpath/:"
+	echo "    - file refs/heads/master:  $ref_master"
+	echo "    - file refs/heads/devel:   $ref_devel"
+	echo "    - file HEAD:               $HEAD"
 	if [ "$ref_devel" == "$NO_SUCH_FILE" ]; then
 		## Repo has no 'devel' branch.
 		if [ "$ref_master" == "$NO_SUCH_FILE" ]; then
 			echo -n "ERROR: Repo $path_to_repo has no 'master' "
-			echo "or 'devel' branch"
+			echo "or 'devel' branch!"
 			exit 1
 		fi
 		if [ "$ref_master" == "$DEVEL_SYMREF" ]; then
 			echo -n "ERROR: Repo $path_to_repo has a 'master' "
 			echo "branch that is a sym ref "
-			echo -n "  to its 'devel' branch but the latter "
-			echo "does not exist"
+			echo -n "  to its 'devel' branch, but the latter "
+			echo "does not exist!"
 			exit 1
 		fi
 		if [ "$HEAD" != "$MASTER_SYMREF" ]; then
-			echo -n "ERROR: Repo $path_to_repo has "
-			echo "no 'devel' branch"
-			echo -n "  so its default branch should "
-			echo "be 'master' but it's not"
+			echo -n "ERROR: Repo $path_to_repo has a "
+			echo "'master' branch and no 'devel' branch."
+			echo -n "  So its default branch is expected "
+			echo "to be 'master', but it's not!"
 			exit 1
 		fi
 		## Repo is in original state.
@@ -156,10 +156,10 @@ take_peek()
 		if [ "$ref_master" == "$NO_SUCH_FILE" ]; then
 			## Repo has no 'master' branch.
 			if [ "$HEAD" != "$DEVEL_SYMREF" ]; then
-				echo -n "ERROR: Repo $path_to_repo has "
-				echo "no 'master' branch"
-				echo -n "  so its default branch should "
-				echo "be 'devel' but it's not"
+				echo -n "ERROR: Repo $path_to_repo has a "
+				echo "'devel' branch and no 'master' branch."
+				echo -n "  So its default branch is expected "
+				echo "to be 'devel', but it's not!"
 				exit 1
 			fi
 			## Repo has a 'devel' branch but no 'master' sym ref.
@@ -170,7 +170,7 @@ take_peek()
 				echo -n "ERROR: Repo $path_to_repo has "
 				echo "branches 'master' and 'devel'"
 				echo -n "  but the former is not "
-				echo "a sym ref to the latter"
+				echo "a sym ref to the latter!"
 				exit 1
 			fi
 			if [ "$HEAD" == "$MASTER_SYMREF" ]; then
@@ -182,9 +182,9 @@ take_peek()
 				repo_state="3"
 			else
 				echo -n "ERROR: Repo $path_to_repo has "
-				echo "branches 'master' and 'devel'"
-				echo -n "  so its default branch should "
-				echo "be one or the other but it's not"
+				echo "branches 'master' and 'devel'."
+				echo -n "  So its default branch is expected "
+				echo "be one or the other, but it's not!"
 				exit 1
 			fi
 		fi

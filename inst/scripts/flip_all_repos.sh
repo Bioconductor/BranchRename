@@ -32,8 +32,7 @@ print_usage()
 	    $0 --peek-only <path/to/dir>
 	
 	  IMPORTANT: <path/to/dir> must be the path to a directory relative
-	  to the ~git/repositories/ folder on the git server, e.g. 'packages'
-	  or 'admin'.
+	  to ~git/repositories/ on the git server, e.g. 'packages' or 'admin'.
 	
 	EXAMPLES:
 	
