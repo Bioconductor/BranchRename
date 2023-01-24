@@ -249,6 +249,11 @@ unflip_repo()
 		exit 2
 	fi
 
+	## --- Rename branch 'devel' to 'master' ---
+	echo -n "Renaming branch 'devel' to 'master' ... "
+	run_as_git_user "mv ${heads_rpath}/devel ${heads_rpath}/master"
+	echo "ok"
+
 	## --- Switch default branch from 'devel' to 'master' ---
 	if [ "$repo_state" == "3" ] || [ "$repo_state" == "1" ]; then
 		echo -n "Switching default branch from 'devel' to 'master' ... "
@@ -260,11 +265,6 @@ unflip_repo()
 		echo "set to 'master'"
 		echo "  ==> no need to touch this."
 	fi
-
-	## --- Rename branch 'devel' to 'master' ---
-	echo -n "Renaming branch 'devel' to 'master' ... "
-	run_as_git_user "mv ${heads_rpath}/devel ${heads_rpath}/master"
-	echo "ok"
 }
 
 if [ "$action" == "flip" ]; then
