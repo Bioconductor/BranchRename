@@ -30,8 +30,7 @@ by the local branch, either "origin/devel" (default) or "upstream/devel"}
 current working directory (default: TRUE)}
 
 \item{is_bioc_pkg}{\code{logical(1)} Whether the repository is an R package that
-has
-an upstream remote on Bioconductor, i.e.,
+has an upstream remote on Bioconductor, i.e.,
 <git@git.bioconductor.org:packages/Package>. If so, additional validity
 checks will be run on the git remotes.}
 }

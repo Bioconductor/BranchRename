@@ -95,8 +95,7 @@ repos_with_default_branch <- function(
 #'   current working directory (default: TRUE)
 #'
 #' @param is_bioc_pkg `logical(1)` Whether the repository is an R package that
-#'   has
-#'   an upstream remote on Bioconductor, i.e.,
+#'   has an upstream remote on Bioconductor, i.e.,
 #'   <git@git.bioconductor.org:packages/Package>. If so, additional validity
 #'   checks will be run on the git remotes.
 #'
