@@ -121,6 +121,15 @@ for repo in $all_repos; do
 	path_to_repo="$path_to_dir/$repo"
 	echo "PROCESSING REPO $path_to_repo ($counter/$num_repos)"
 	echo ""
+
+	## Hardcoded list of repos to skip.
+	if [ "$path_to_repo" == "packages/phastCons30way.UCSC.hg38.git" ] || \
+	   [ "$path_to_repo" == "packages/UCSCRepeatMasker.git" ]; then
+		echo -n "Repo $path_to_repo is in a weird state "
+		echo "(no ref 'master') ==> skip it!"
+		continue
+	fi
+
 	if [ "$2" == "" ]; then
 		$flip_repo_script "$path_to_repo"
 	else

@@ -89,7 +89,8 @@ if [ $? -ne 0 ]; then
 fi
 branches=`run_as_git_user "ls -A $heads_rpath"`
 if [ -z "$branches" ]; then
-	echo "Repo $path_to_repo is empty (no branches) ==> don't touch it."
+	echo -n "Repo $path_to_repo is empty (refs/heads/ is empty) "
+	echo "==> don't touch it."
 	exit 2
 fi
 run_as_git_user "test -f $HEAD_rpath"
