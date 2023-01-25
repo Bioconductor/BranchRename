@@ -87,6 +87,10 @@ if [ $? -ne 0 ]; then
 	echo "  Is $path_to_repo a valid git repo?"
 	exit 1
 fi
+if [ -z "$(ls -A $heads_rpath)" ]; then
+	echo "Repo $path_to_repo is empty (no branches) ==> don't touch it."
+	exit 2
+fi
 run_as_git_user "test -f $HEAD_rpath"
 if [ $? -ne 0 ]; then
 	echo "ERROR: $HEAD_rpath/: file not found."
@@ -206,7 +210,7 @@ flip_repo()
 	## --- Do nothing if repo is already flipped ---
 	if [ "$repo_state" == "3" ]; then
 		echo "Repo is already flipped ==> nothing to do."
-		exit 2
+		exit 3
 	fi
 
 	## --- Rename branch 'master' to 'devel' ---
@@ -246,7 +250,7 @@ unflip_repo()
 	## --- Do nothing if repo is in original state ---
 	if [ "$repo_state" == "0" ]; then
 		echo "Repo is in original state ==> nothing to do."
-		exit 2
+		exit 3
 	fi
 
 	## --- Rename branch 'devel' to 'master' ---
