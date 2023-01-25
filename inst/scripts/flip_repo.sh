@@ -87,7 +87,8 @@ if [ $? -ne 0 ]; then
 	echo "  Is $path_to_repo a valid git repo?"
 	exit 1
 fi
-if [ -z "$(ls -A $heads_rpath)" ]; then
+branches=`run_as_git_user "ls -A $heads_rpath"`
+if [ -z "$branches" ]; then
 	echo "Repo $path_to_repo is empty (no branches) ==> don't touch it."
 	exit 2
 fi
