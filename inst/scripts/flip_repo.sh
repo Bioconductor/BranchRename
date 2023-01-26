@@ -200,7 +200,8 @@ take_peek()
 			fi
 		fi
 	fi
-	echo "  ==> state of repo: $repo_state"
+	repo_name=`basename "$path_to_repo"`
+	echo "  ==> state of $repo_name repo: $repo_state"
 	echo ""
 }
 
