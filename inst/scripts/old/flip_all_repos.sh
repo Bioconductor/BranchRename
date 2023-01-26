@@ -51,7 +51,7 @@ print_usage()
 	- Restore all the git repos in ~git/repositories/packages/ to their
 	  original state, and redirect the script output to unflip.log:
 	
-	    # Takes about ??? to complete.
+	    # Takes about 35 sec to complete.
 	    time $0 -r ~git/repositories/packages >unflip.log 2>&1 &
 	    tail -f unflip.log  # watch progress
 	

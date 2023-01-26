@@ -149,7 +149,7 @@ take_peek()
 			exit 1
 		fi
 		## Repo is in original state.
-		repo_state="0"
+		repo_state="ORIGINAL"
 	else
 		## Repo does have a 'devel' branch.
 		if [ "$ref_master" == "$NO_SUCH_FILE" ]; then
@@ -162,7 +162,7 @@ take_peek()
 				exit 1
 			fi
 			## Repo has a 'devel' branch but no 'master' sym ref.
-			repo_state="1"
+			repo_state="FLIPPED_BUT_NO_SYMREF"
 		else
 			## Repo does have a 'master' branch.
 			if [ "$ref_master" != "$DEVEL_SYMREF" ]; then
@@ -175,10 +175,10 @@ take_peek()
 			if [ "$HEAD" == "$MASTER_SYMREF" ]; then
 				## Repo has a 'devel' branch and the 'master'
 				## sym ref but default branch is still 'master'.
-				repo_state="2"
+				repo_state="FLIPPED_BUT_DEFAULT_STILL_MASTER"
 			elif [ "$HEAD" == "$DEVEL_SYMREF" ]; then
 				## Repo is fully flipped.
-				repo_state="3"
+				repo_state="FULLY_FLIPPED"
 			else
 				echo -n "ERROR: Repo $path_to_repo has "
 				echo "branches 'master' and 'devel'."
@@ -202,67 +202,83 @@ take_peek
 flip_repo()
 {
 	## --- Do nothing if repo is already flipped ---
-	if [ "$repo_state" == "3" ]; then
+	if [ "$repo_state" == "FULLY_FLIPPED" ]; then
 		echo "Repo is already flipped ==> nothing to do."
 		exit 3
 	fi
 
 	## --- Rename branch 'master' to 'devel' ---
-	if [ "$repo_state" == "0" ]; then
+	if [ "$repo_state" == "ORIGINAL" ]; then
 		echo -n "Renaming branch 'master' to 'devel' ... "
-		mv "${path_to_heads}/master" "${path_to_heads}/devel"
+		#mv "${path_to_heads}/master" "${path_to_heads}/devel"
+		## Using the git client is safer/cleaner than the above hack.
+		## Note that it also takes care of switching the default branch
+		## from 'master' to 'devel'.
+		cd "$path_to_repo"
+		git branch -m master devel
 		echo "ok"
 	fi
 
-	## --- Create ref 'master' (sym ref to 'devel') ---
-	if [ "$repo_state" == "0" ] || [ "$repo_state" == "1" ]; then
+	## --- Create 'master' ref (sym ref to 'devel') ---
+	if [ "$repo_state" == "ORIGINAL" ] || \
+	   [ "$repo_state" == "FLIPPED_BUT_NO_SYMREF" ]; then
 		echo -n "Creating ref 'master' (sym ref to 'devel') ... "
-		echo "$DEVEL_SYMREF" >"${path_to_heads}/master"
+		#echo "$DEVEL_SYMREF" >"${path_to_heads}/master"
+		## Using the git client is safer/cleaner than the above hack.
+		cd "$path_to_repo"
+		git symbolic-ref "refs/heads/master" "refs/heads/devel"
 		echo "ok"
 	else
-		## "$repo_state" == "2"
+		## "$repo_state" == "FLIPPED_BUT_DEFAULT_STILL_MASTER"
 		echo -n "Repo $path_to_repo already has ref 'master' "
 		echo "and it's a sym ref"
 		echo "to 'devel' ==> no need to create it."
 	fi
 
 	## --- Switch default branch from 'master' to 'devel' ---
-	if [ "$repo_state" == "0" ] || [ "$repo_state" == "2" ]; then
+	if [ "$repo_state" == "FLIPPED_BUT_DEFAULT_STILL_MASTER" ]; then
 		echo -n "Switching default branch from 'master' to 'devel' ... "
 		echo "$DEVEL_SYMREF" >"$path_to_HEAD"
 		echo "ok"
-	else
-		## "$repo_state" == "1"
+	elif [ "$repo_state" == "FLIPPED_BUT_NO_SYMREF" ]; then
 		echo -n "Default branch in repo $path_to_repo is already "
 		echo "set to 'devel'"
 		echo "  ==> no need to touch this."
+	else
+		## "$repo_state" == "ORIGINAL"
+		## The 'git branch -m master devel' command above already
+		## took care of that so no need to do or to say anything.
 	fi
 }
 
 unflip_repo()
 {
 	## --- Do nothing if repo is in original state ---
-	if [ "$repo_state" == "0" ]; then
+	if [ "$repo_state" == "ORIGINAL" ]; then
 		echo "Repo is in original state ==> nothing to do."
 		exit 3
 	fi
 
+	## --- Remove 'master' ref (sym ref to 'devel') ---
+	if [ "$repo_state" == "FLIPPED_BUT_DEFAULT_STILL_MASTER" ] || \
+	   [ "$repo_state" == "FULLY_FLIPPED" ]; then
+		echo -n "Removing ref 'master' (sym ref to 'devel') ... "
+		#rm "${path_to_heads}/master"
+		## Using the git client is safer/cleaner than the above hack.
+		cd "$path_to_repo"
+		git symbolic-ref --delete "refs/heads/master"
+		echo "ok"
+	fi
+
 	## --- Rename branch 'devel' to 'master' ---
 	echo -n "Renaming branch 'devel' to 'master' ... "
-	mv "${path_to_heads}/devel" "${path_to_heads}/master"
+	#mv "${path_to_heads}/devel" "${path_to_heads}/master"
+	## Using the git client is safer/cleaner than the above hack.
+	## Note that it also takes care of switching the default branch
+	## from 'devel' to 'master'.
+	cd "$path_to_repo"
+	git branch -m devel master
 	echo "ok"
-
-	## --- Switch default branch from 'devel' to 'master' ---
-	if [ "$repo_state" == "3" ] || [ "$repo_state" == "1" ]; then
-		echo -n "Switching default branch from 'devel' to 'master' ... "
-		echo "$MASTER_SYMREF" >"$path_to_HEAD"
-		echo "ok"
-	else
-		## "$repo_state" == "2"
-		echo -n "Default branch in repo $path_to_repo is already "
-		echo "set to 'master'"
-		echo "  ==> no need to touch this."
-	fi
 }
 
 if [ "$action" == "flip" ]; then
