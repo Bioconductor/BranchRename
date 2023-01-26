@@ -275,6 +275,6 @@ echo ""
 echo -n "Taking a 2nd peek at $path_to_repo ... "
 take_peek
 
-echo "Repo $path_to_repo sucesfully ${action}ped."
+echo "Repo $path_to_repo successfully ${action}ped."
 
 exit 0
