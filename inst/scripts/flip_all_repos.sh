@@ -37,7 +37,7 @@ print_usage()
 	  (3111 repos as of 2023/01/21 on the testing instance), and redirect
 	  the script output to peek.log:
 	
-	    # Takes about 20 sec to complete.
+	    # Takes about 20-25 sec to complete.
 	    time $0 --peek-only ~git/repositories/packages >peek.log 2>&1 &
 	    tail -f peek.log  # watch progress
 	
