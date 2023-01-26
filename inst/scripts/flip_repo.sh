@@ -133,15 +133,16 @@ take_peek()
 	echo "  - file refs/heads/master:  $ref_master"
 	echo "  - file refs/heads/devel:   $ref_devel"
 	echo "  - file HEAD:               $HEAD"
-	echo ""
 	if [ "$ref_devel" == "$NO_SUCH_FILE" ]; then
 		## Repo has no 'devel' branch.
 		if [ "$ref_master" == "$NO_SUCH_FILE" ]; then
+			echo ""
 			echo -n "ERROR: Repo $path_to_repo has no 'master' "
 			echo "or 'devel' branch!"
 			exit 1
 		fi
 		if [ "$ref_master" == "$DEVEL_SYMREF" ]; then
+			echo ""
 			echo -n "ERROR: Repo $path_to_repo has a 'master' "
 			echo "branch that is a sym ref "
 			echo -n "  to its 'devel' branch, but the latter "
@@ -149,6 +150,7 @@ take_peek()
 			exit 1
 		fi
 		if [ "$HEAD" != "$MASTER_SYMREF" ]; then
+			echo ""
 			echo -n "ERROR: Repo $path_to_repo has a "
 			echo "'master' branch and no 'devel' branch."
 			echo -n "  So its default branch is expected "
@@ -162,6 +164,7 @@ take_peek()
 		if [ "$ref_master" == "$NO_SUCH_FILE" ]; then
 			## Repo has no 'master' branch.
 			if [ "$HEAD" != "$DEVEL_SYMREF" ]; then
+				echo ""
 				echo -n "ERROR: Repo $path_to_repo has a "
 				echo "'devel' branch and no 'master' branch."
 				echo -n "  So its default branch is expected "
@@ -173,6 +176,7 @@ take_peek()
 		else
 			## Repo does have a 'master' branch.
 			if [ "$ref_master" != "$DEVEL_SYMREF" ]; then
+				echo ""
 				echo -n "ERROR: Repo $path_to_repo has "
 				echo "branches 'master' and 'devel'"
 				echo -n "  but the former is not "
@@ -187,6 +191,7 @@ take_peek()
 				## Repo is fully flipped.
 				repo_state="FULLY_FLIPPED"
 			else
+				echo ""
 				echo -n "ERROR: Repo $path_to_repo has "
 				echo "branches 'master' and 'devel'."
 				echo -n "  So its default branch is expected "
@@ -196,6 +201,7 @@ take_peek()
 		fi
 	fi
 	echo "  ==> state of repo: $repo_state"
+	echo ""
 }
 
 if [ "$action" == "peek-only" ]; then
