@@ -110,7 +110,7 @@ for repo in $all_repos; do
 	(( counter=$counter+1 ))
 	echo "----------------------------------------------------------------"
 	path_to_repo="$path_to_dir/$repo"
-	echo "PROCESSING REPO $path_to_repo ($counter/$num_repos)"
+	echo "PROCESSING $path_to_repo ($counter/$num_repos)"
 	echo ""
 
 	## Hardcoded list of repos to skip.

@@ -129,10 +129,10 @@ take_peek()
 	ref_devel=`get_ref devel`
 	HEAD=`get_HEAD`
 	echo "ok"
-	echo "--> Found in $path_to_repo/:"
-	echo "    - file refs/heads/master:  $ref_master"
-	echo "    - file refs/heads/devel:   $ref_devel"
-	echo "    - file HEAD:               $HEAD"
+	echo "  Summary:"
+	echo "  - file refs/heads/master:  $ref_master"
+	echo "  - file refs/heads/devel:   $ref_devel"
+	echo "  - file HEAD:               $HEAD"
 	echo ""
 	if [ "$ref_devel" == "$NO_SUCH_FILE" ]; then
 		## Repo has no 'devel' branch.
@@ -195,6 +195,7 @@ take_peek()
 			fi
 		fi
 	fi
+	echo "  ==> state of repo: $repo_state"
 }
 
 if [ "$action" == "peek-only" ]; then
