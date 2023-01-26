@@ -17,7 +17,7 @@ print_usage()
 	git server.
 	
 	The script is meant to be run directly on the Bioconductor git
-	server, from the git account.
+	server, from the ubuntu account.
 	
 	USAGE:
 	
@@ -95,16 +95,21 @@ echo "- $FLIP_REPO_SCRIPT_NAME script: $flip_repo_script"
 
 ## --- Make sure $path_to_dir refers to an existing directory ---
 
+run_as_git_user()
+{
+	sudo su - git --command="$1"
+}
+
 dir_rpath="~git/repositories/${path_to_dir}"
 
-test -d "$dir_rpath"
+run_as_git_user "test -d $dir_rpath"
 if [ $? -ne 0 ]; then
 	echo "ERROR: $dir_rpath: no such folder on git server"
 	echo ""
 	print_usage
 fi
 
-all_repos=`cd "$dir_rpath" && ls -d *.git`
+all_repos=`run_as_git_user "cd $dir_rpath && ls -d *.git"`
 num_repos=`echo "$all_repos" | wc -w`
 echo "- number of git repos found in $dir_rpath/: $num_repos"
 echo ""

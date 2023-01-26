@@ -13,9 +13,6 @@ Example:
     ## Go on the testing instance:
     ssh -A ubuntu@44.207.152.77
 
-    ## Switch to the git account:
-    sudo su - git
-
     # Clone the BranchRename repo if not already there:
     git clone https://github.com/Bioconductor/BranchRename
 

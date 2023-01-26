@@ -18,7 +18,7 @@ print_usage()
 	the git repos located in a given directory on the server.
 	
 	The script is meant to be run directly on the Bioconductor git
-	server, from the git account.
+	server, from the ubuntu account.
 	
 	USAGE:
 	
@@ -66,29 +66,34 @@ fi
 
 ## --- Make sure that $path_to_repo refers to a valid git repo ---
 
+run_as_git_user()
+{
+	sudo su - git --command="$1"
+}
+
 repo_rpath="~git/repositories/${path_to_repo}"
 heads_rpath="$repo_rpath/refs/heads"
 HEAD_rpath="$repo_rpath/HEAD"
 
-test -d "$repo_rpath"
+run_as_git_user "test -d $repo_rpath"
 if [ $? -ne 0 ]; then
 	echo "ERROR: $repo_rpath/: folder not found."
 	echo ""
 	print_usage
 fi
-test -d "$heads_rpath"
+run_as_git_user "test -d $heads_rpath"
 if [ $? -ne 0 ]; then
 	echo "ERROR: $heads_rpath/: folder not found."
 	echo "  Is $path_to_repo a valid git repo?"
 	exit 1
 fi
-branches=`ls -A "$heads_rpath"`
+branches=`run_as_git_user "ls -A $heads_rpath"`
 if [ -z "$branches" ]; then
 	echo -n "Repo $path_to_repo is empty (refs/heads/ is empty) "
 	echo "==> don't touch it."
 	exit 2
 fi
-test -f "$HEAD_rpath"
+run_as_git_user "test -f $HEAD_rpath"
 if [ $? -ne 0 ]; then
 	echo "ERROR: $HEAD_rpath/: file not found."
 	echo "  Is $path_to_repo a valid git repo?"
@@ -101,9 +106,9 @@ NO_SUCH_FILE="no such file"
 
 get_ref()
 {
-	test -f "${heads_rpath}/$1"
+	run_as_git_user "test -f ${heads_rpath}/$1"
 	if [ $? -eq 0 ]; then
-		cat "${heads_rpath}/$1"
+		run_as_git_user "cat ${heads_rpath}/$1"
 	else
 		echo "$NO_SUCH_FILE"
 	fi
@@ -111,9 +116,9 @@ get_ref()
 
 get_HEAD()
 {
-	test -f "$HEAD_rpath"
+	run_as_git_user "test -f $HEAD_rpath"
 	if [ $? -eq 0 ]; then
-		cat "$HEAD_rpath"
+		run_as_git_user "cat $HEAD_rpath"
 	else
 		echo "$NO_SUCH_FILE"
 	fi
@@ -213,14 +218,14 @@ flip_repo()
 	## --- Rename branch 'master' to 'devel' ---
 	if [ "$repo_state" == "0" ]; then
 		echo -n "Renaming branch 'master' to 'devel' ... "
-		mv "${heads_rpath}/master" "${heads_rpath}/devel"
+		run_as_git_user "mv ${heads_rpath}/master ${heads_rpath}/devel"
 		echo "ok"
 	fi
 
 	## --- Create ref 'master' (sym ref to 'devel') ---
 	if [ "$repo_state" == "0" ] || [ "$repo_state" == "1" ]; then
 		echo -n "Creating ref 'master' (sym ref to 'devel') ... "
-		echo "$DEVEL_SYMREF" >"${heads_rpath}/master"
+		run_as_git_user "echo \"$DEVEL_SYMREF\" >${heads_rpath}/master"
 		echo "ok"
 	else
 		## "$repo_state" == "2"
@@ -232,7 +237,7 @@ flip_repo()
 	## --- Switch default branch from 'master' to 'devel' ---
 	if [ "$repo_state" == "0" ] || [ "$repo_state" == "2" ]; then
 		echo -n "Switching default branch from 'master' to 'devel' ... "
-		echo "$DEVEL_SYMREF" >"$HEAD_rpath"
+		run_as_git_user "echo \"$DEVEL_SYMREF\" >$HEAD_rpath"
 		echo "ok"
 	else
 		## "$repo_state" == "1"
@@ -252,13 +257,13 @@ unflip_repo()
 
 	## --- Rename branch 'devel' to 'master' ---
 	echo -n "Renaming branch 'devel' to 'master' ... "
-	mv "${heads_rpath}/devel" "${heads_rpath}/master"
+	run_as_git_user "mv ${heads_rpath}/devel ${heads_rpath}/master"
 	echo "ok"
 
 	## --- Switch default branch from 'devel' to 'master' ---
 	if [ "$repo_state" == "3" ] || [ "$repo_state" == "1" ]; then
 		echo -n "Switching default branch from 'devel' to 'master' ... "
-		echo "$MASTER_SYMREF" >"$HEAD_rpath"
+		run_as_git_user "echo \"$MASTER_SYMREF\" >$HEAD_rpath"
 		echo "ok"
 	else
 		## "$repo_state" == "2"
