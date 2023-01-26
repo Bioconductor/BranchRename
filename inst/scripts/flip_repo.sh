@@ -10,8 +10,8 @@ DEVEL_SYMREF="ref: refs/heads/devel"
 ## or
 ##   rm "${path_to_heads}/master"
 ## to create or delete the 'master' sym ref.
-CREATE_SYMREF_CMD="git symbolic-ref 'refs/heads/master' 'refs/heads/devel'"
-DELETE_SYMREF_CMD="git symbolic-ref --delete 'refs/heads/master'"
+CREATE_SYMREF_CMD="git symbolic-ref refs/heads/master refs/heads/devel"
+DELETE_SYMREF_CMD="git symbolic-ref --delete refs/heads/master"
 
 ## --- Check usage ---
 
@@ -182,7 +182,7 @@ take_peek()
 			if [ "$HEAD" == "$MASTER_SYMREF" ]; then
 				## Repo has a 'devel' branch and the 'master'
 				## sym ref but default branch is still 'master'.
-				repo_state="FLIPPED_BUT_DEFAULT_STILL_MASTER"
+				repo_state="FLIPPED_BUT_DEFAULT_IS_MASTER"
 			elif [ "$HEAD" == "$DEVEL_SYMREF" ]; then
 				## Repo is fully flipped.
 				repo_state="FULLY_FLIPPED"
@@ -206,6 +206,9 @@ fi
 run_in_repo()
 {
 	(cd "$path_to_repo" && $1)
+	if [ $? -ne 0 ]; then
+		exit 1
+	fi
 }
 
 echo -n "Taking a 1st peek at $path_to_repo ... "
@@ -238,14 +241,14 @@ flip_repo()
 		run_in_repo "$CREATE_SYMREF_CMD"
 		echo "ok"
 	else
-		## "$repo_state" == "FLIPPED_BUT_DEFAULT_STILL_MASTER"
+		## "$repo_state" == "FLIPPED_BUT_DEFAULT_IS_MASTER"
 		echo -n "Repo $path_to_repo already has ref 'master' "
 		echo "and it's a sym ref"
 		echo "to 'devel' ==> no need to create it."
 	fi
 
 	## --- Switch default branch from 'master' to 'devel' ---
-	if [ "$repo_state" == "FLIPPED_BUT_DEFAULT_STILL_MASTER" ]; then
+	if [ "$repo_state" == "FLIPPED_BUT_DEFAULT_IS_MASTER" ]; then
 		echo -n "Switching default branch from 'master' to 'devel' ... "
 		echo "$DEVEL_SYMREF" >"$path_to_HEAD"
 		echo "ok"
@@ -270,7 +273,7 @@ unflip_repo()
 	fi
 
 	## --- Delete 'master' ref (sym ref to 'devel') ---
-	if [ "$repo_state" == "FLIPPED_BUT_DEFAULT_STILL_MASTER" ] || \
+	if [ "$repo_state" == "FLIPPED_BUT_DEFAULT_IS_MASTER" ] || \
 	   [ "$repo_state" == "FULLY_FLIPPED" ]; then
 		echo -n "Deleting ref 'master' (sym ref to 'devel') ... "
 		run_in_repo "$DELETE_SYMREF_CMD"
