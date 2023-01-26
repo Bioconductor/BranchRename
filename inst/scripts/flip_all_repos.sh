@@ -37,21 +37,21 @@ print_usage()
 	  (3111 repos as of 2023/01/21 on the testing instance), and redirect
 	  the script output to peek.log:
 	
-	    # Takes about 20-25 sec to complete.
+	    # Takes about 20 sec to complete.
 	    time $0 --peek-only ~git/repositories/packages >peek.log 2>&1 &
 	    tail -f peek.log  # watch progress
 	
 	- Flip all the git repos in ~git/repositories/packages/ and redirect
 	  the script output to flip.log:
 
-	    # Takes about 35-40 sec to complete.
+	    # Takes about 6 min to complete.
 	    time $0 ~git/repositories/packages >flip.log 2>&1 &
 	    tail -f flip.log  # watch progress
 	
 	- Restore all the git repos in ~git/repositories/packages/ to their
 	  original state, and redirect the script output to unflip.log:
 	
-	    # Takes about ??? to complete.
+	    # Takes about 40-45 sec to complete.
 	    time $0 -r ~git/repositories/packages >unflip.log 2>&1 &
 	    tail -f unflip.log  # watch progress
 	

@@ -23,8 +23,8 @@ Example:
 
     # Flip all the git repos in ~git/repositories/packages/ (3111 repos
     # as of 2023/01/21 on the testing instance), and redirect the script
-    # output to flip.log. Should take about 35-40 sec to complete:
-    ./flip_all_repos.sh packages >flip.log 2>&1 &
+    # output to flip.log. Should take about 6 min to complete:
+    ./flip_all_repos.sh ~git/repositories/packages >flip.log 2>&1 &
 
 For questions or help: Hervé Pagès <hpages.on.github@gmail.com>
 
