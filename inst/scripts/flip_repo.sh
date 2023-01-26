@@ -32,10 +32,6 @@ print_usage()
 	  to peek only:
 	    $0 --peek-only <path/to/repo.git>
 	
-	  IMPORTANT: <path/to/repo.git> must be the path to a git
-	  repo relative to ~git/repositories/ on the git server,
-	  e.g. 'packages/Biobase.git' or 'admin/manifest.git'.
-	
 	For questions or help: Hervé Pagès <hpages.on.github@gmail.com>
 	EOD
 	exit 1
@@ -66,33 +62,34 @@ fi
 
 ## --- Make sure that $path_to_repo refers to a valid git repo ---
 
-repo_rpath="~git/repositories/${path_to_repo}"
-heads_rpath="$repo_rpath/refs/heads"
-HEAD_rpath="$repo_rpath/HEAD"
+path_to_heads="$path_to_repo/refs/heads"
+path_to_HEAD="$path_to_repo/HEAD"
 
-test -d "$repo_rpath"
+test -d "$path_to_repo"
 if [ $? -ne 0 ]; then
-	echo "ERROR: $repo_rpath/: folder not found."
+	echo "ERROR: $path_to_repo/: folder not found."
 	echo ""
 	print_usage
 fi
-test -d "$heads_rpath"
+test -d "$path_to_heads"
 if [ $? -ne 0 ]; then
-	echo "ERROR: $heads_rpath/: folder not found."
+	echo "ERROR: $path_to_heads/: folder not found."
 	echo "  Is $path_to_repo a valid git repo?"
-	exit 1
+	echo ""
+	print_usage
 fi
-branches=`ls -A "$heads_rpath"`
+branches=`ls -A "$path_to_heads"`
 if [ -z "$branches" ]; then
 	echo -n "Repo $path_to_repo is empty (refs/heads/ is empty) "
 	echo "==> don't touch it."
 	exit 2
 fi
-test -f "$HEAD_rpath"
+test -f "$path_to_HEAD"
 if [ $? -ne 0 ]; then
-	echo "ERROR: $HEAD_rpath/: file not found."
+	echo "ERROR: $path_to_HEAD/: file not found."
 	echo "  Is $path_to_repo a valid git repo?"
-	exit 1
+	echo ""
+	print_usage
 fi
 
 ## --- Take a peek ---
@@ -101,9 +98,9 @@ NO_SUCH_FILE="no such file"
 
 get_ref()
 {
-	test -f "${heads_rpath}/$1"
+	test -f "${path_to_heads}/$1"
 	if [ $? -eq 0 ]; then
-		cat "${heads_rpath}/$1"
+		cat "${path_to_heads}/$1"
 	else
 		echo "$NO_SUCH_FILE"
 	fi
@@ -111,9 +108,9 @@ get_ref()
 
 get_HEAD()
 {
-	test -f "$HEAD_rpath"
+	test -f "$path_to_HEAD"
 	if [ $? -eq 0 ]; then
-		cat "$HEAD_rpath"
+		cat "$path_to_HEAD"
 	else
 		echo "$NO_SUCH_FILE"
 	fi
@@ -125,7 +122,7 @@ take_peek()
 	ref_devel=`get_ref devel`
 	HEAD=`get_HEAD`
 	echo "ok"
-	echo "--> Found in $repo_rpath/:"
+	echo "--> Found in $path_to_repo/:"
 	echo "    - file refs/heads/master:  $ref_master"
 	echo "    - file refs/heads/devel:   $ref_devel"
 	echo "    - file HEAD:               $HEAD"
@@ -194,12 +191,12 @@ take_peek()
 }
 
 if [ "$action" == "peek-only" ]; then
-	echo -n "Taking a peek at repo $path_to_repo ... "
+	echo -n "Taking a peek at $path_to_repo ... "
 	take_peek
 	exit 0
 fi
 
-echo -n "Taking a 1st peek at repo $path_to_repo ... "
+echo -n "Taking a 1st peek at $path_to_repo ... "
 take_peek
 
 flip_repo()
@@ -213,14 +210,14 @@ flip_repo()
 	## --- Rename branch 'master' to 'devel' ---
 	if [ "$repo_state" == "0" ]; then
 		echo -n "Renaming branch 'master' to 'devel' ... "
-		mv "${heads_rpath}/master" "${heads_rpath}/devel"
+		mv "${path_to_heads}/master" "${path_to_heads}/devel"
 		echo "ok"
 	fi
 
 	## --- Create ref 'master' (sym ref to 'devel') ---
 	if [ "$repo_state" == "0" ] || [ "$repo_state" == "1" ]; then
 		echo -n "Creating ref 'master' (sym ref to 'devel') ... "
-		echo "$DEVEL_SYMREF" >"${heads_rpath}/master"
+		echo "$DEVEL_SYMREF" >"${path_to_heads}/master"
 		echo "ok"
 	else
 		## "$repo_state" == "2"
@@ -232,7 +229,7 @@ flip_repo()
 	## --- Switch default branch from 'master' to 'devel' ---
 	if [ "$repo_state" == "0" ] || [ "$repo_state" == "2" ]; then
 		echo -n "Switching default branch from 'master' to 'devel' ... "
-		echo "$DEVEL_SYMREF" >"$HEAD_rpath"
+		echo "$DEVEL_SYMREF" >"$path_to_HEAD"
 		echo "ok"
 	else
 		## "$repo_state" == "1"
@@ -252,13 +249,13 @@ unflip_repo()
 
 	## --- Rename branch 'devel' to 'master' ---
 	echo -n "Renaming branch 'devel' to 'master' ... "
-	mv "${heads_rpath}/devel" "${heads_rpath}/master"
+	mv "${path_to_heads}/devel" "${path_to_heads}/master"
 	echo "ok"
 
 	## --- Switch default branch from 'devel' to 'master' ---
 	if [ "$repo_state" == "3" ] || [ "$repo_state" == "1" ]; then
 		echo -n "Switching default branch from 'devel' to 'master' ... "
-		echo "$MASTER_SYMREF" >"$HEAD_rpath"
+		echo "$MASTER_SYMREF" >"$path_to_HEAD"
 		echo "ok"
 	else
 		## "$repo_state" == "2"
@@ -275,7 +272,7 @@ else
 fi
 
 echo ""
-echo -n "Taking a 2nd peek at repo $path_to_repo ... "
+echo -n "Taking a 2nd peek at $path_to_repo ... "
 take_peek
 
 echo "Repo $path_to_repo sucesfully ${action}ped."

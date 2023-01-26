@@ -31,9 +31,6 @@ print_usage()
 	  to peek only:
 	    $0 --peek-only <path/to/dir>
 	
-	  IMPORTANT: <path/to/dir> must be the path to a directory relative
-	  to ~git/repositories/ on the git server, e.g. 'packages' or 'admin'.
-	
 	EXAMPLES:
 	
 	- Take a peek at all the git repos in ~git/repositories/packages/
@@ -41,21 +38,21 @@ print_usage()
 	  the script output to peek.log:
 	
 	    # Takes about 7 min to complete.
-	    time $0 --peek-only packages >peek.log 2>&1 &
+	    time $0 --peek-only ~git/repositories/packages >peek.log 2>&1 &
 	    tail -f peek.log  # watch progress
 	
 	- Flip all the git repos in ~git/repositories/packages/ and redirect
 	  the script output to flip.log:
 
 	    # Takes about 13 min to complete.	
-	    time $0 packages >flip.log 2>&1 &
+	    time $0 ~git/repositories/packages >flip.log 2>&1 &
 	    tail -f flip.log  # watch progress
 	
 	- Restore all the git repos in ~git/repositories/packages/ to their
 	  original state, and redirect the script output to unflip.log:
 	
 	    # Takes about 12 min to complete.
-	    time $0 -r packages >unflip.log 2>&1 &
+	    time $0 -r ~git/repositories/packages >unflip.log 2>&1 &
 	    tail -f unflip.log  # watch progress
 	
 	For questions or help: Hervé Pagès <hpages.on.github@gmail.com>	
@@ -88,6 +85,7 @@ if [ $? -ne 0 ]; then
 	flip_repo_script=`which "$FLIP_REPO_SCRIPT_NAME"`
 	if [ $? -ne 0 ]; then
 		echo "ERROR: $FLIP_REPO_SCRIPT_NAME script not found"
+		exit 1
 	fi
 fi
 
@@ -95,18 +93,16 @@ echo "- $FLIP_REPO_SCRIPT_NAME script: $flip_repo_script"
 
 ## --- Make sure $path_to_dir refers to an existing directory ---
 
-dir_rpath="~git/repositories/${path_to_dir}"
-
-test -d "$dir_rpath"
+test -d "$path_to_dir"
 if [ $? -ne 0 ]; then
-	echo "ERROR: $dir_rpath: no such folder on git server"
+	echo "ERROR: $path_to_dir: folder not found."
 	echo ""
 	print_usage
 fi
 
-all_repos=`cd "$dir_rpath" && ls -d *.git`
+all_repos=`cd "$path_to_dir" && ls -d *.git`
 num_repos=`echo "$all_repos" | wc -w`
-echo "- number of git repos found in $dir_rpath/: $num_repos"
+echo "- number of git repos found in $path_to_dir/: $num_repos"
 echo ""
 
 counter="0"
@@ -118,8 +114,8 @@ for repo in $all_repos; do
 	echo ""
 
 	## Hardcoded list of repos to skip.
-	if [ "$path_to_repo" == "packages/phastCons30way.UCSC.hg38.git" ] || \
-	   [ "$path_to_repo" == "packages/UCSCRepeatMasker.git" ]; then
+	if [ "$repo" == "phastCons30way.UCSC.hg38.git" ] || \
+	   [ "$repo" == "UCSCRepeatMasker.git" ]; then
 		echo -n "Repo $path_to_repo is in a weird state "
 		echo "(no ref 'master') ==> skip it!"
 		continue

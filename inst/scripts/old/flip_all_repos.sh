@@ -88,6 +88,7 @@ if [ $? -ne 0 ]; then
 	flip_repo_script=`which "$FLIP_REPO_SCRIPT_NAME"`
 	if [ $? -ne 0 ]; then
 		echo "ERROR: $FLIP_REPO_SCRIPT_NAME script not found"
+		exit 1
 	fi
 fi
 
