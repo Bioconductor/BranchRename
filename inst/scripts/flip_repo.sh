@@ -5,6 +5,13 @@
 
 MASTER_SYMREF="ref: refs/heads/master"
 DEVEL_SYMREF="ref: refs/heads/devel"
+## Using the git client is safer/cleaner than using hacks like
+##   echo "$DEVEL_SYMREF" >"${path_to_heads}/master"
+## or
+##   rm "${path_to_heads}/master"
+## to create or delete the 'master' sym ref.
+CREATE_SYMREF_CMD="git symbolic-ref 'refs/heads/master' 'refs/heads/devel'"
+DELETE_SYMREF_CMD="git symbolic-ref --delete 'refs/heads/master'"
 
 ## --- Check usage ---
 
@@ -196,6 +203,11 @@ if [ "$action" == "peek-only" ]; then
 	exit 0
 fi
 
+run_in_repo()
+{
+	(cd "$path_to_repo" && $1)
+}
+
 echo -n "Taking a 1st peek at $path_to_repo ... "
 take_peek
 
@@ -215,8 +227,7 @@ flip_repo()
 		## Using the git client is safer/cleaner than the above hack.
 		## Note that it also takes care of switching the default branch
 		## from 'master' to 'devel'.
-		cd "$path_to_repo"
-		git branch -m master devel
+		run_in_repo "git branch -m master devel"
 		echo "ok"
 	fi
 
@@ -224,10 +235,7 @@ flip_repo()
 	if [ "$repo_state" == "ORIGINAL" ] || \
 	   [ "$repo_state" == "FLIPPED_BUT_NO_SYMREF" ]; then
 		echo -n "Creating ref 'master' (sym ref to 'devel') ... "
-		#echo "$DEVEL_SYMREF" >"${path_to_heads}/master"
-		## Using the git client is safer/cleaner than the above hack.
-		cd "$path_to_repo"
-		git symbolic-ref "refs/heads/master" "refs/heads/devel"
+		run_in_repo "$CREATE_SYMREF_CMD"
 		echo "ok"
 	else
 		## "$repo_state" == "FLIPPED_BUT_DEFAULT_STILL_MASTER"
@@ -261,14 +269,11 @@ unflip_repo()
 		exit 3
 	fi
 
-	## --- Remove 'master' ref (sym ref to 'devel') ---
+	## --- Delete 'master' ref (sym ref to 'devel') ---
 	if [ "$repo_state" == "FLIPPED_BUT_DEFAULT_STILL_MASTER" ] || \
 	   [ "$repo_state" == "FULLY_FLIPPED" ]; then
-		echo -n "Removing ref 'master' (sym ref to 'devel') ... "
-		#rm "${path_to_heads}/master"
-		## Using the git client is safer/cleaner than the above hack.
-		cd "$path_to_repo"
-		git symbolic-ref --delete "refs/heads/master"
+		echo -n "Deleting ref 'master' (sym ref to 'devel') ... "
+		run_in_repo "$DELETE_SYMREF_CMD"
 		echo "ok"
 	fi
 
@@ -279,8 +284,7 @@ unflip_repo()
 	## Using the git client is safer/cleaner than the above hack.
 	## Note that it also takes care of switching the default branch
 	## from 'devel' to 'master'.
-	cd "$path_to_repo"
-	git branch -m devel master
+	run_in_repo "git branch -m devel master"
 	echo "ok"
 }
 
