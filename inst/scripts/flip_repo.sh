@@ -209,7 +209,8 @@ flip_repo()
 
 	## --- Rename branch 'master' to 'devel' ---
 	if [ "$repo_state" == "ORIGINAL" ]; then
-		echo -n "Renaming branch 'master' to 'devel' ... "
+		echo -n "Renaming branch 'master' to 'devel' "
+		echo -n "(and setting latter as default) ... "
 		#mv "${path_to_heads}/master" "${path_to_heads}/devel"
 		## Using the git client is safer/cleaner than the above hack.
 		## Note that it also takes care of switching the default branch
@@ -248,6 +249,7 @@ flip_repo()
 		## "$repo_state" == "ORIGINAL"
 		## The 'git branch -m master devel' command above already
 		## took care of that so no need to do or to say anything.
+		:
 	fi
 }
 
@@ -271,7 +273,8 @@ unflip_repo()
 	fi
 
 	## --- Rename branch 'devel' to 'master' ---
-	echo -n "Renaming branch 'devel' to 'master' ... "
+	echo -n "Renaming branch 'devel' to 'master' "
+	echo -n "(and setting latter as default) ... "
 	#mv "${path_to_heads}/devel" "${path_to_heads}/master"
 	## Using the git client is safer/cleaner than the above hack.
 	## Note that it also takes care of switching the default branch
