@@ -127,7 +127,11 @@ rename_branch_to_devel <- function(
 
     old_wd <- setwd(package_name)
     on.exit({ setwd(old_wd) })
-    if (is_bioc_pkg)
+    
+    if (clone)
+        git_remote_add(url = .get_bioc_slug(package_name), name = "upstream")
+    
+    if (is_bioc_pkg && !clone)
         .validate_remotes()
 
     has_devel <- git_branch_exists("devel")
