@@ -48,10 +48,11 @@ update_local_repos <- function(
 
     mapply(
         FUN = update_local_repo,
-        package_dir = pkg_dirs,
+        repo_dir = pkg_dirs,
         MoreArgs = list(
             new_branch = new_branch,
-            set_upstream = set_upstream
+            set_upstream = set_upstream,
+            org = org
         ),
         SIMPLIFY = FALSE
     )
@@ -61,10 +62,14 @@ update_local_repos <- function(
 #'
 #' @export
 update_local_repo <- function(
-        repo_dir, new_branch = "devel", set_upstream = "origin/devel"
+        repo_dir,
+        new_branch = "devel",
+        set_upstream = "origin/devel",
+        org = "Bioconductor"
 ) {
     old_wd <- setwd(repo_dir)
     on.exit({ setwd(old_wd) })
+    message("Working on: ", repo_dir)
     if (git_branch_exists(new_branch))
         return(git_branch_checkout(new_branch))
     from_branch <- git_branch()
@@ -72,14 +77,31 @@ update_local_repo <- function(
         branch = from_branch, new_branch = new_branch, repo = I(".")
     )
     if (!.is_remote_github())
-        stop("'origin' remote should be set to GitHub")
+        fix_bioc_remotes(repo_dir = repo_dir, org = org)
     git_fetch(remote = "origin")
     system2("git", "remote set-head origin -a")
     git_branch_set_upstream(set_upstream)
 }
 
-.is_remote_github <- function(remote = "origin") {
-    remotes <- git_remote_list()
+.is_remote_github <- function(remotes, remote = "origin") {
+    if (missing(remotes))
+        remotes <- git_remote_list()
     remote_url <- unlist(remotes[remotes[["name"]] == remote, "url"])
     grepl("github", remote_url, ignore.case = TRUE)
+}
+
+fix_bioc_remotes <- function(repo_dir, org = "Bioconductor") {
+    old_wd <- setwd(repo_dir)
+    on.exit({ setwd(old_wd) })
+    
+    remotes <- git_remote_list()
+    if (!.is_remote_github(remotes)) {
+        git_remote_remove("origin")
+        git_remote_add(.get_gh_slug(basename(repo_dir), org = org))
+    }
+    
+    if (!.has_bioc_upstream(remotes))
+        git_remote_add(.get_bioc_slug(basename(repo_dir)), name = "upstream")
+    
+    .validate_remotes()
 }

@@ -16,7 +16,8 @@ update_local_repos(
 update_local_repo(
   repo_dir,
   new_branch = "devel",
-  set_upstream = "origin/devel"
+  set_upstream = "origin/devel",
+  org = "Bioconductor"
 )
 }
 \arguments{
