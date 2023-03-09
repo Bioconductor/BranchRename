@@ -13,7 +13,7 @@
     paste0(.BIOC_GIT_ADDRESS, ":packages/", package_name)
 }
 
-.get_slug_gh <- function(package_name, org = "Bioconductor") {
+.get_gh_slug <- function(package_name, org = "Bioconductor") {
     paste0(.GITHUB_ADDRESS, ":", org, "/", package_name)
 }
 

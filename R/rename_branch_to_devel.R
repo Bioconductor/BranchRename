@@ -120,7 +120,7 @@ rename_branch_to_devel <- function(
 ) {
     message("Working on: ", package_name)
     if (!dir.exists(package_name) && clone)
-        git_clone(url = .get_slug_gh(package_name, org))
+        git_clone(url = .get_gh_slug(package_name, org))
     else if (!dir.exists(package_name))
         stop("'package_name' not found in the current 'getwd()'")
 
