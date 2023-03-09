@@ -23,7 +23,7 @@
 #'
 #' @param username `character(1)` (optional) The GitHub username used in the
 #'   query to check default packages
-#'
+#' 
 #' @inheritParams gert::git_branch_move
 #' @inheritParams rename_branch_repos
 #' @importFrom ReleaseLaunch get_user_github_repos
@@ -33,15 +33,17 @@ update_local_repos <- function(
     basedir, org = "Bioconductor", username,
     new_branch = "devel", set_upstream = "origin/devel"
 ) {
-    if (!missing(username))
+    if (!missing(username)) {
         repos <- ReleaseLaunch::get_user_github_repos(username = username)
-    else
+        org <- username
+    } else {
         repos <- ReleaseLaunch::get_org_github_repos(org = org)
+    }
     repos <- repos[repos == new_branch]
     folders <- list.dirs(basedir, recursive = FALSE)
-    fnames <- basename(folders)
-    matching <- intersect(fnames, names(repos))
-    pkg_dirs <- file.path(basedir, matching)
+    pkg_dirs <- folders[basename(folders) %in% names(repos)]
+    
+    is_bioc <- .is_bioc_pkgs(pkg_dirs)
 
     if (!length(matching))
         stop("No local folders in 'basedir' to update")
@@ -49,6 +51,7 @@ update_local_repos <- function(
     mapply(
         FUN = update_local_repo,
         repo_dir = pkg_dirs,
+        is_bioc = is_bioc,
         MoreArgs = list(
             new_branch = new_branch,
             set_upstream = set_upstream,
@@ -60,9 +63,13 @@ update_local_repos <- function(
 
 #' @rdname update_local_repos
 #'
+#' @param is_bioc `logical(1)` Whether the repository in question is a
+#'   Bioconductor package
+#'
 #' @export
 update_local_repo <- function(
         repo_dir,
+        is_bioc,
         new_branch = "devel",
         set_upstream = "origin/devel",
         org = "Bioconductor"
@@ -73,11 +80,13 @@ update_local_repo <- function(
     if (git_branch_exists(new_branch))
         return(git_branch_checkout(new_branch))
     from_branch <- git_branch()
+    if (!identical(from_branch, "master"))
+        git_branch_checkout("master")
     git_branch_move(
         branch = from_branch, new_branch = new_branch, repo = I(".")
     )
     if (!.is_origin_github(org = org))
-        fix_bioc_remotes(repo_dir = repo_dir, org = org)
+        stop("'origin' remote should be set to GitHub")
     git_fetch(remote = "origin")
     system2("git", "remote set-head origin -a")
     git_branch_set_upstream(set_upstream)
@@ -90,7 +99,7 @@ update_local_repo <- function(
     grepl(paste0("github.com:", org), remote_url, ignore.case = TRUE)
 }
 
-fix_bioc_remotes <- function(repo_dir, org = "Bioconductor") {
+fix_bioc_remotes <- function(repo_dir, org = "Bioconductor", is_bioc) {
     old_wd <- setwd(repo_dir)
     on.exit({ setwd(old_wd) })
     
@@ -100,8 +109,16 @@ fix_bioc_remotes <- function(repo_dir, org = "Bioconductor") {
         git_remote_add(.get_gh_slug(basename(repo_dir), org = org))
     }
     
-    if (!.has_bioc_upstream(remotes))
+    if (!.has_bioc_upstream(remotes) && is_bioc)
         git_remote_add(.get_bioc_slug(basename(repo_dir)), name = "upstream")
     
-    .validate_remotes()
+    if (is_bioc)
+        .validate_remotes()
+}
+
+.is_bioc_pkgs <- function(pkg_dirs) {
+    bioc_pkgs <- rownames(
+        available.packages(repos = BiocManager::repositories()["BioCsoft"])
+    )
+    basename(pkg_dirs) %in% pkg_dirs
 }

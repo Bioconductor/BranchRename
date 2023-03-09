@@ -15,6 +15,7 @@ update_local_repos(
 
 update_local_repo(
   repo_dir,
+  is_bioc,
   new_branch = "devel",
   set_upstream = "origin/devel",
   org = "Bioconductor"
@@ -37,6 +38,9 @@ by the local branch, either "origin/devel" (default) or "upstream/devel"}
 
 \item{repo_dir}{\code{character(1)} The full path to the directory of the local
 repository whose default branch should be updated}
+
+\item{is_bioc}{\code{logical(1)} Whether the repository in question is a
+Bioconductor package}
 }
 \description{
 These functions works \emph{only} after renaming branches on GitHub from \code{master}
