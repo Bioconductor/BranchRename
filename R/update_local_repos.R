@@ -76,18 +76,18 @@ update_local_repo <- function(
     git_branch_move(
         branch = from_branch, new_branch = new_branch, repo = I(".")
     )
-    if (!.is_remote_github())
+    if (!.is_origin_github(org = org))
         fix_bioc_remotes(repo_dir = repo_dir, org = org)
     git_fetch(remote = "origin")
     system2("git", "remote set-head origin -a")
     git_branch_set_upstream(set_upstream)
 }
 
-.is_remote_github <- function(remotes, remote = "origin") {
+.is_origin_github <- function(remotes, org) {
     if (missing(remotes))
         remotes <- git_remote_list()
-    remote_url <- unlist(remotes[remotes[["name"]] == remote, "url"])
-    grepl("github", remote_url, ignore.case = TRUE)
+    remote_url <- unlist(remotes[remotes[["name"]] == "origin", "url"])
+    grepl(paste0("github.com:", org), remote_url, ignore.case = TRUE)
 }
 
 fix_bioc_remotes <- function(repo_dir, org = "Bioconductor") {
@@ -95,7 +95,7 @@ fix_bioc_remotes <- function(repo_dir, org = "Bioconductor") {
     on.exit({ setwd(old_wd) })
     
     remotes <- git_remote_list()
-    if (!.is_remote_github(remotes)) {
+    if (!.is_origin_github(remotes, org)) {
         git_remote_remove("origin")
         git_remote_add(.get_gh_slug(basename(repo_dir), org = org))
     }
