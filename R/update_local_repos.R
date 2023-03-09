@@ -99,15 +99,24 @@ update_local_repo <- function(
     grepl(paste0("github.com:", org), remote_url, ignore.case = TRUE)
 }
 
+#' A helper function to adjust git remotes the Bioconductor way
+#'
+#' This function will update a repository's remotes by setting `origin` to the
+#' GitHub location and `upstream` to the Bioconductor git server.
+#'
+#' @inheritParams update_local_repo
+#'
+#' @return Called for the side-effect of adjusting `git remotes` in the
+#'   `repo_dir`; check them with `git remote -v`
+#'
+#' @export
 fix_bioc_remotes <- function(repo_dir, org = "Bioconductor", is_bioc) {
     old_wd <- setwd(repo_dir)
     on.exit({ setwd(old_wd) })
     
     remotes <- git_remote_list()
-    if (!.is_origin_github(remotes, org)) {
-        git_remote_remove("origin")
-        git_remote_add(.get_gh_slug(basename(repo_dir), org = org))
-    }
+    if (!.is_origin_github(remotes, org))
+        stop("'origin' GitHub remote does not include ", org)
     
     if (!.has_bioc_upstream(remotes) && is_bioc)
         git_remote_add(.get_bioc_slug(basename(repo_dir)), name = "upstream")
