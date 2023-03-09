@@ -18,8 +18,7 @@
 }
 
 .validate_bioc_remote <- function(remotes, remote = "upstream") {
-    remote_url <- remotes[remotes[["name"]] == remote, "url"]
-    bioc_remote <- grepl("git.bioconductor.org", unlist(remote_url))
+    bioc_remote <- .has_bioc_upstream(remotes)
     if (!bioc_remote)
         stop(
             sQuote(remote, FALSE),
@@ -38,4 +37,16 @@
     .validate_remote_names(remotes)
     .validate_bioc_remote(remotes)
     TRUE
+}
+
+.has_bioc_upstream <- function(remotes) {
+    if (missing(remotes))
+        remotes <- git_remote_list()
+    remote_url <- unlist(
+        remotes[remotes[["name"]] == "upstream", "url"]
+    )
+    if (length(remote_url))
+        grepl("git.bioconductor.org", remote_url)
+    else
+        FALSE
 }

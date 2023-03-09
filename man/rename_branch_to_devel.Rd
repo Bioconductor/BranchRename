@@ -6,7 +6,7 @@
 \usage{
 rename_branch_to_devel(
   package_name,
-  from_branch = .OLD_DEFAULT_BRANCH,
+  from_branch = "master",
   org = "Bioconductor",
   set_upstream = c("origin/devel", "upstream/devel"),
   clone = FALSE,

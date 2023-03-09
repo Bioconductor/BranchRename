@@ -6,7 +6,7 @@
 \usage{
 packages_with_default_branch(
   version = BiocManager::version(),
-  branches = c(.OLD_DEFAULT_BRANCH, "main"),
+  branches = c("master", "main"),
   org = "Bioconductor"
 )
 }

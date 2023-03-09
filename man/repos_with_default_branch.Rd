@@ -4,10 +4,7 @@
 \alias{repos_with_default_branch}
 \title{Identify repositories that have old default branches}
 \usage{
-repos_with_default_branch(
-  branches = c(.OLD_DEFAULT_BRANCH, "main"),
-  org = "Bioconductor"
-)
+repos_with_default_branch(branches = c("master", "main"), org = "Bioconductor")
 }
 \arguments{
 \item{branches}{\code{character()} A vector of branches that are sought as default
