@@ -133,14 +133,15 @@ rename_branch_to_devel <- function(
     if (is_bioc_pkg && !clone)
         .validate_remotes()
 
+    has_old <- git_branch_exists(from_branch)
     has_devel <- git_branch_exists("devel")
     if (has_devel)
         warning("'devel' branch exists locally")
 
     git_fetch(remote = "origin")
-    if (!git_branch_exists(from_branch))
-        git_branch_create(from_branch)
-    git_branch_checkout(from_branch)
+    if (!has_old && !has_devel) {
+        stop("Neither '", from_branch, "' nor 'devel' branch was found")
+    }
     git_pull(remote = "origin")
     if (is_bioc_pkg)
         git_pull(remote = "upstream")
@@ -150,7 +151,11 @@ rename_branch_to_devel <- function(
         )
     if (git_branch_exists(from_branch) && git_branch_exists("devel")) {
         git_branch_checkout("devel")
-        git_branch_delete(from_branch)
+        warning(
+            "Check '", from_branch,
+            "' for uncommitted changes and delete with\n",
+            "  git branch -d ", from_branch
+        )
     }
     gh::gh(
         "POST /repos/{owner}/{repo}/branches/{branch}/rename",
