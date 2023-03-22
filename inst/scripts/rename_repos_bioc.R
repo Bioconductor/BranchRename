@@ -15,8 +15,7 @@ sort(names(biocrepos))
 .EXCLUDED <- c(
     "bioconductor_docker", "support.bioconductor.org", "issue_tracker_github",
     "packagebuilder", "bioc-common-python", "BioconductorAnnotationPipeline",
-    "YouTube", "GitContribution", "git_credentials", "SCExploration",
-    "BiocWorkingGroups"
+    "YouTube", "GitContribution", "git_credentials", "SCExploration"
 )
 ## exclude Bioc2023 repos and bioc_docker support.bioc.org
 excludeCurrentBIOC <- grepl("BioC2023", names(biocrepos), ignore.case = TRUE) |
