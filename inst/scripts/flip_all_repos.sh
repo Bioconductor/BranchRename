@@ -115,7 +115,10 @@ for repo in $all_repos; do
 
 	## Hardcoded list of repos to skip.
 	if [ "$repo" == "phastCons30way.UCSC.hg38.git" ] || \
-	   [ "$repo" == "UCSCRepeatMasker.git" ]; then
+	   [ "$repo" == "UCSCRepeatMasker.git" ] || \
+	   [ "$repo" == "epigraHMM.git" ] || \
+	   [ "$repo" == "GBScleanR.git" ] || \
+	   [ "$repo" == "CBEA.git" ]; then
 		echo -n "Repo $path_to_repo is in a weird state "
 		echo "(no ref 'master') ==> skip it!"
 		continue
