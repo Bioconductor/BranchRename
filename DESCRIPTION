@@ -2,7 +2,7 @@ Package: BranchRename
 Title: Utilities for renaming branches on GitHub
 Version: 0.99.2
 Authors@R: 
-    person("Marcel", "Ramos", , "marcel.ramosperez@roswellpark.org",
+    person("Marcel", "Ramos", , "marcel.ramos@sph.cuny.edu",
     c("aut", "cre"), c(ORCID = "0000-0002-3242-0582"))
 Description: The package provides utility functions at the user and
   organization level for renaming branches on GitHub. The functions are
